@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AVA — Formulario Permisos Guerrero</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://www.google.com/recaptcha/api.js?render=6LcxxxxxxxxxAAAAAxxxxxxxxxxxx-xxxxxxxxxxx" async defer></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0A1F44; --blue: #165DFF; --blue-light: #3a76ff;
+      --white: #FFFFFF; --dark: #333333; --gray: #6B7280;
+      --gray-light: #F4F6FA; --border: #D8E0F0;
+      --success: #10B981; --warning: #F59E0B; --danger: #EF4444;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(10,31,68,0.10);
+      --shadow-lg: 0 8px 40px rgba(10,31,68,0.16);
+    }
+    body { font-family:'DM Sans',sans-serif; background:#EEF2FB; color:var(--dark); min-height:100vh; }
+
+    /* HEADER */
+    header { background:var(--navy); padding:28px 20px 24px; text-align:center; position:relative; overflow:hidden; }
+    header::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(22,93,255,0.35) 0%,transparent 70%); }
+    .header-logo { font-family:'Outfit',sans-serif; font-size:42px; font-weight:700; color:var(--white); letter-spacing:-1px; position:relative; }
+    .header-logo span { color:var(--blue); }
+    .header-subtitle { font-family:'Outfit',sans-serif; font-size:11px; font-weight:500; letter-spacing:4px; color:rgba(255,255,255,0.65); text-transform:uppercase; margin-top:4px; position:relative; }
+
+    /* MAIN */
+    main { max-width:780px; margin:32px auto 80px; padding:0 16px; }
+
+    /* PROGRESS */
+    .form-progress { background:var(--white); border-radius:14px; box-shadow:var(--shadow); padding:16px 24px; margin-bottom:20px; display:flex; align-items:center; gap:14px; }
+    .progress-bar-bg { flex:1; background:#E5E9F5; border-radius:999px; height:8px; overflow:hidden; }
+    .progress-bar-fill { height:100%; border-radius:999px; background:var(--blue); transition:width 0.4s, background 0.3s; }
+    .progress-label { font-size:13px; font-weight:600; color:var(--navy); white-space:nowrap; }
+
+    /* CARD */
+    .card { background:var(--white); border-radius:18px; box-shadow:var(--shadow); margin-bottom:20px; overflow:hidden; }
+    .card-header { background:var(--navy); padding:14px 24px; display:flex; align-items:center; gap:10px; }
+    .card-header-icon { width:32px; height:32px; background:rgba(22,93,255,0.25); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+    .card-header h2 { font-family:'Outfit',sans-serif; font-size:14px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--white); }
+    .card-body { padding:28px 24px; display:flex; flex-direction:column; gap:18px; }
+
+    /* GRID */
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .col-span-2 { grid-column:span 2; }
+    @media(max-width:600px){ .grid-2{ grid-template-columns:1fr; } .col-span-2{ grid-column:span 1; } }
+
+    /* FIELD */
+    .field { display:flex; flex-direction:column; gap:6px; }
+    .field label { font-size:12px; font-weight:600; color:var(--navy); letter-spacing:0.5px; text-transform:uppercase; }
+    .field label .req { color:var(--blue); margin-left:2px; }
+    .helper { font-size:11px; color:var(--gray); margin-top:2px; line-height:1.5; }
+    .field-error { font-size:11px; color:var(--danger); margin-top:2px; display:none; font-weight:500; }
+    .field-error.show { display:block; }
+
+    input[type="text"],input[type="email"],input[type="date"],select {
+      width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:var(--radius);
+      font-family:'DM Sans',sans-serif; font-size:14px; color:var(--dark); background:var(--white);
+      outline:none; transition:border-color 0.2s,box-shadow 0.2s; appearance:none;
+    }
+    input:focus,select:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,93,255,0.10); }
+    input.v-invalid { border-color:var(--danger) !important; }
+    input.v-valid { border-color:var(--success) !important; }
+    select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230A1F44' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; cursor:pointer; }
+
+    /* PHONE */
+    .phone-wrap { display:flex; gap:8px; }
+    .lada-select-wrap { position:relative; flex:0 0 auto; }
+    .lada-btn { display:flex; align-items:center; gap:6px; padding:11px 12px; border:1.5px solid var(--border); border-radius:var(--radius); background:var(--white); cursor:pointer; white-space:nowrap; min-width:120px; user-select:none; transition:border-color 0.2s; }
+    .lada-btn:hover,.lada-btn.open { border-color:var(--blue); }
+    .lada-btn .flag { font-size:18px; }
+    .lada-btn .code { font-weight:600; font-size:13px; color:var(--navy); }
+    .lada-dropdown { position:absolute; top:calc(100% + 4px); left:0; z-index:200; background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-lg); width:310px; max-height:320px; overflow-y:auto; display:none; }
+    .lada-dropdown.open { display:block; }
+    .lada-search { padding:10px 12px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--white); z-index:1; }
+    .lada-search input { width:100%; padding:7px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; }
+    .lada-group-label { padding:8px 14px 4px; font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--gray); background:var(--gray-light); }
+    .lada-option { display:flex; align-items:center; gap:10px; padding:9px 14px; cursor:pointer; font-size:13px; transition:background 0.15s; }
+    .lada-option:hover { background:rgba(22,93,255,0.07); }
+    .lada-option .country { color:var(--dark); flex:1; }
+    .lada-option .dial { color:var(--blue); font-weight:600; font-size:12px; }
+
+    /* CP */
+    .cp-wrap { position:relative; }
+    .cp-loading { position:absolute; right:12px; top:50%; transform:translateY(-50%); display:none; align-items:center; }
+    .spinner { width:16px; height:16px; border:2px solid var(--border); border-top-color:var(--blue); border-radius:50%; animation:spin 0.6s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* BRAND */
+    .brand-wrap { position:relative; }
+    .brand-suggestions { position:absolute; top:calc(100% + 2px); left:0; right:0; z-index:100; background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-lg); max-height:240px; overflow-y:auto; display:none; }
+    .brand-suggestions.open { display:block; }
+    .brand-group-label { padding:6px 12px 2px; font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--gray); background:var(--gray-light); }
+    .brand-option { padding:9px 14px; cursor:pointer; font-size:13px; transition:background 0.15s; }
+    .brand-option:hover { background:rgba(22,93,255,0.07); }
+
+    /* FILE UPLOAD */
+    .file-drop { border:2px dashed var(--border); border-radius:var(--radius); padding:22px 20px; text-align:center; cursor:pointer; transition:border-color 0.2s,background 0.2s; position:relative; }
+    .file-drop:hover,.file-drop.drag { border-color:var(--blue); background:rgba(22,93,255,0.03); }
+    .file-drop input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+    .file-drop-icon { font-size:30px; margin-bottom:6px; }
+    .file-drop p { font-size:13px; color:var(--gray); line-height:1.7; }
+    .file-drop strong { color:var(--navy); }
+    .legible-box { background:rgba(22,93,255,0.04); border:1.5px solid rgba(22,93,255,0.15); border-radius:10px; padding:14px 16px; font-size:12px; line-height:1.8; }
+    .legible-box .lb-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--navy); display:block; margin-bottom:8px; }
+    .legible-example { margin-top:10px; display:flex; gap:10px; }
+    .legible-ex-item { flex:1; border-radius:8px; padding:9px 11px; font-size:11px; line-height:1.6; }
+    .legible-ex-item.good { background:#e8faf4; border:1px solid #10B981; color:#065f46; }
+    .legible-ex-item.bad { background:#fef2f2; border:1px solid #EF4444; color:#991b1b; }
+    .legible-ex-item .ex-label { font-weight:700; font-size:10px; letter-spacing:0.8px; text-transform:uppercase; display:block; margin-bottom:3px; }
+    .file-required-note { font-size:11px; color:var(--danger); font-weight:600; margin-top:6px; display:none; }
+    .storage-bar-wrap { margin-top:14px; display:none; }
+    .storage-info { display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:6px; }
+    .storage-bar-bg { background:#E5E9F5; border-radius:999px; height:8px; overflow:hidden; }
+    .storage-bar-fill { height:100%; border-radius:999px; transition:width 0.4s,background 0.4s; }
+    .storage-status { font-size:11px; margin-top:5px; display:flex; align-items:center; gap:5px; }
+    .status-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .file-list { margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+    .file-item { display:flex; align-items:center; gap:10px; background:var(--gray-light); border-radius:8px; padding:9px 12px; font-size:13px; }
+    .file-item-icon { font-size:18px; }
+    .file-item-name { flex:1; color:var(--navy); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .file-item-size { color:var(--gray); font-size:12px; flex-shrink:0; }
+    .file-item-del { background:none; border:none; cursor:pointer; color:var(--danger); font-size:20px; padding:0 2px; line-height:1; flex-shrink:0; transition:opacity 0.2s; }
+    .file-item-del:hover { opacity:0.7; }
+
+    /* SUBMIT */
+    .btn-submit { width:100%; padding:16px; background:var(--blue); color:var(--white); font-family:'Outfit',sans-serif; font-size:16px; font-weight:600; letter-spacing:0.5px; border:none; border-radius:var(--radius); cursor:pointer; transition:background 0.2s,transform 0.1s,box-shadow 0.2s,opacity 0.3s; box-shadow:0 4px 18px rgba(22,93,255,0.35); display:flex; align-items:center; justify-content:center; gap:8px; }
+    .btn-submit:not(:disabled):hover { background:var(--blue-light); transform:translateY(-1px); box-shadow:0 8px 24px rgba(22,93,255,0.40); }
+    .btn-submit:disabled { opacity:0.42; cursor:not-allowed; box-shadow:none; }
+    .recaptcha-note { font-size:11px; color:var(--gray); text-align:center; margin-top:10px; line-height:1.5; }
+    .recaptcha-note a { color:var(--blue); text-decoration:none; }
+
+    /* WHATSAPP — left */
+    .whatsapp-btn { position:fixed; bottom:24px; left:24px; z-index:999; width:58px; height:58px; background:#25D366; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(37,211,102,0.45); text-decoration:none; transition:transform 0.2s,box-shadow 0.2s; }
+    .whatsapp-btn:hover { transform:scale(1.08); box-shadow:0 6px 28px rgba(37,211,102,0.55); }
+    .whatsapp-btn svg { width:30px; height:30px; fill:white; }
+
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:var(--border); border-radius:99px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">A<span>V</span>A</div>
+  <div class="header-subtitle">Formulario Permisos Guerrero</div>
+</header>
+
+<main>
+  <!-- Progress -->
+  <div class="form-progress">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Completa todos los campos</div>
+  </div>
+
+  <form id="ava-form" action="https://formsubmit.co/info@anpai.com.mx" method="POST" enctype="multipart/form-data" novalidate>
+    <input type="hidden" name="_subject" value="Nueva Solicitud — AVA Permisos Guerrero" />
+    <input type="hidden" name="_template" value="table" />
+    <input type="hidden" name="_captcha" value="true" />
+    <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
+    <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response" />
+
+    <!-- ══ DATOS PERSONALES ══ -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">👤</div>
+        <h2>Datos Personales</h2>
+      </div>
+      <div class="card-body">
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Nombre <span class="req">*</span></label>
+            <input type="text" name="nombre" placeholder="Tu nombre" data-req />
+          </div>
+          <div class="field">
+            <label>Segundo Nombre</label>
+            <input type="text" name="segundo_nombre" placeholder="Opcional" />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Apellido <span class="req">*</span></label>
+            <input type="text" name="apellido" placeholder="Primer apellido" data-req />
+          </div>
+          <div class="field">
+            <label>Segundo Apellido <span class="req">*</span></label>
+            <input type="text" name="segundo_apellido" placeholder="Segundo apellido" data-req />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Género <span class="req">*</span></label>
+            <select name="genero" data-req>
+              <option value="">Selecciona...</option>
+              <option>Masculino</option>
+              <option>Femenino</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Fecha de Nacimiento <span class="req">*</span></label>
+            <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" data-req />
+          </div>
+        </div>
+
+        <!-- CURP -->
+        <div class="field">
+          <label>CURP <span class="req">*</span></label>
+          <input type="text" name="curp" id="f-curp" placeholder="Ej. XEXX010101HNEXXX01" maxlength="18" style="text-transform:uppercase" data-req data-validate="curp" />
+          <div class="field-error" id="err-curp">CURP inválida. Debe tener 18 caracteres con el formato oficial (ej. LOOA800101MMCRNS09).</div>
+          <div class="helper">18 caracteres: 4 letras del nombre, 6 dígitos de fecha de nacimiento (AAMMDD), H o M, clave de estado (2 letras), 3 consonantes internas, 2 dígitos verificadores.</div>
+        </div>
+
+        <!-- RFC -->
+        <div class="field">
+          <label>RFC <span class="req">*</span></label>
+          <input type="text" name="rfc" id="f-rfc" placeholder="Ej. XEXX010101XXX" maxlength="13" style="text-transform:uppercase" data-req data-validate="rfc" />
+          <div class="field-error" id="err-rfc">RFC inválido. Persona física: 13 caracteres. Persona moral: 12 caracteres.</div>
+          <div class="helper">Persona física: 4 letras + 6 dígitos de fecha + 3 alfanuméricos (13 total). Persona moral: 3 letras + 6 dígitos + 3 alfanuméricos (12 total).</div>
+        </div>
+
+        <!-- CÓDIGO POSTAL -->
+        <div class="field">
+          <label>Código Postal <span class="req">*</span></label>
+          <div class="cp-wrap">
+            <input type="text" name="codigo_postal" id="cp-input" placeholder="Ej. 39000" maxlength="5" inputmode="numeric" data-req />
+            <div class="cp-loading" id="cp-loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+        <div id="cp-extra" style="display:none; flex-direction:column; gap:18px;">
+          <div class="grid-2">
+            <div class="field">
+              <label>Estado</label>
+              <input type="text" name="estado" id="cp-estado" readonly style="background:#f8faff;" />
+            </div>
+            <div class="field">
+              <label>Municipio</label>
+              <input type="text" name="municipio" id="cp-municipio" readonly style="background:#f8faff;" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Colonia <span class="req">*</span></label>
+            <select name="colonia" id="cp-colonia" data-req-colonia>
+              <option value="">Selecciona tu colonia...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- TELÉFONO -->
+        <div class="field">
+          <label>Teléfono <span class="req">*</span></label>
+          <div class="phone-wrap">
+            <div class="lada-select-wrap">
+              <div class="lada-btn" id="lada-btn" tabindex="0">
+                <span class="flag" id="lada-flag">🇲🇽</span>
+                <span class="code" id="lada-code">+52</span>
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="#0A1F44" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              <input type="hidden" name="lada" id="lada-val" value="+52" />
+              <div class="lada-dropdown" id="lada-dropdown">
+                <div class="lada-search"><input type="text" id="lada-search" placeholder="Buscar país o código..." /></div>
+                <div id="lada-list"></div>
+              </div>
+            </div>
+            <input type="text" name="telefono" placeholder="Número telefónico" inputmode="tel" data-req style="flex:1;" />
+          </div>
+        </div>
+
+        <!-- CORREO -->
+        <div class="field">
+          <label>Correo Electrónico <span class="req">*</span></label>
+          <input type="email" name="email" placeholder="correo@ejemplo.com" data-req />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ DATOS DEL VEHÍCULO ══ -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">🚗</div>
+        <h2>Datos del Vehículo</h2>
+      </div>
+      <div class="card-body">
+
+        <div class="field">
+          <label>Tipo de Vehículo <span class="req">*</span></label>
+          <select name="tipo_vehiculo" data-req>
+            <option value="">Selecciona...</option>
+            <option>Nuevo</option>
+            <option>Seminuevo</option>
+          </select>
+        </div>
+
+        <!-- MARCA -->
+        <div class="field">
+          <label>Marca <span class="req">*</span></label>
+          <div class="brand-wrap">
+            <input type="text" name="marca" id="brand-input" placeholder="Escribe o selecciona una marca..." autocomplete="off" data-req />
+            <div class="brand-suggestions" id="brand-suggestions"></div>
+          </div>
+        </div>
+        <div class="field" id="brand-other-field" style="display:none;">
+          <label>Especifica la Marca <span class="req">*</span></label>
+          <input type="text" name="marca_otro" id="marca_otro" placeholder="Escribe el nombre de la marca" />
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Versión / Trim <span class="req">*</span></label>
+            <input type="text" name="version" placeholder="Ej. Limited, Sport, XLE..." data-req />
+          </div>
+          <div class="field">
+            <label>Año Modelo <span class="req">*</span></label>
+            <select name="anio_modelo" id="anio-select" data-req>
+              <option value="">Selecciona año...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Número de Serie (VIN) <span class="req">*</span></label>
+            <input type="text" name="num_serie" placeholder="17 caracteres alfanuméricos" maxlength="17" style="text-transform:uppercase" data-req />
+            <div class="helper">Se encuentra en la factura, tablero o marco de la puerta del conductor.</div>
+          </div>
+          <div class="field">
+            <label>Número de Motor <span class="req">*</span></label>
+            <input type="text" name="num_motor" placeholder="Ej. 4A91T12345" style="text-transform:uppercase" data-req />
+            <div class="helper">Localizado en el bloque del motor o en la factura del vehículo.</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Clave Vehicular <span class="req">*</span></label>
+          <input type="text" name="clave_vehicular" placeholder="Ej. 8A9SCAZ5E0001" style="text-transform:uppercase" data-req />
+          <div class="helper">Asignada por el fabricante — se encuentra en la factura o tarjeta de circulación.</div>
+        </div>
+
+        <!-- ADJUNTAR DOCUMENTOS -->
+        <div class="field">
+          <label>Adjuntar Documentos <span class="req">*</span></label>
+          <div class="file-drop" id="file-drop">
+            <input type="file" id="file-input" multiple accept=".pdf,.jpg,.jpeg,.png,.zip,.rar" />
+            <div class="file-drop-icon">📁</div>
+            <p>Arrastra tus archivos aquí o <strong style="color:var(--blue);">haz clic para seleccionar</strong></p>
+            <p style="font-size:11px;margin-top:5px;">Formatos: PDF, JPG, PNG, ZIP, RAR &nbsp;|&nbsp; <strong>Límite total: 5 MB</strong></p>
+            <p style="font-size:11px;margin-top:3px;color:var(--warning);">💡 Si tus documentos superan el límite, comprímelos en un archivo <strong>ZIP o RAR</strong> antes de adjuntarlos.</p>
+          </div>
+
+          <!-- Documentos requeridos + ejemplo legibilidad -->
+          <div class="legible-box">
+            <span class="lb-title">📋 Documentos requeridos</span>
+            <div style="margin-bottom:4px;">✅ <strong>Factura del vehículo</strong> — Documento completo, todos los datos visibles.</div>
+            <div>✅ <strong>INE por ambos lados</strong> — Adjunta frente y reverso (pueden ser dos archivos separados).</div>
+            <div style="margin-top:10px; font-size:11px; font-weight:600; color:var(--navy);">⚠️ Todos los documentos deben ser <u>legibles</u> — texto e información visible sin recortes ni borrosidad.</div>
+            <div class="legible-example">
+              <div class="legible-ex-item good">
+                <span class="ex-label">✅ Legible</span>
+                Foto nítida, bien iluminada, encuadre completo. Todos los datos (nombre, número, fecha) se leen sin esfuerzo.
+              </div>
+              <div class="legible-ex-item bad">
+                <span class="ex-label">❌ No legible</span>
+                Imagen borrosa, oscura, con reflejos, recortada o con dedos sobre los datos. No puede procesarse.
+              </div>
+            </div>
+          </div>
+
+          <div class="file-required-note" id="file-required-note">⚠️ Debes adjuntar al menos un documento (Factura e INE) para continuar.</div>
+
+          <!-- Storage meter -->
+          <div class="storage-bar-wrap" id="storage-bar-wrap">
+            <div class="storage-info">
+              <span>Capacidad utilizada</span>
+              <span id="storage-text">0 KB de 5 MB</span>
+            </div>
+            <div class="storage-bar-bg"><div class="storage-bar-fill" id="storage-bar" style="width:0%;background:var(--success);"></div></div>
+            <div class="storage-status" id="storage-status"></div>
+          </div>
+
+          <div class="file-list" id="file-list"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SUBMIT -->
+    <div>
+      <button type="submit" class="btn-submit" id="btn-submit" disabled>
+        <span>✉️</span> Enviar Solicitud
+      </button>
+      <div class="recaptcha-note">Protegido por Google reCAPTCHA — <a href="https://policies.google.com/privacy" target="_blank">Privacidad</a> · <a href="https://policies.google.com/terms" target="_blank">Términos</a></div>
+    </div>
+
+  </form>
+</main>
+
+<!-- WhatsApp — izquierda -->
+<a class="whatsapp-btn" href="https://wa.me/" target="_blank" title="Contactar por WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<!-- Elfsight AI Chatbot -->
+<script src="https://elfsightcdn.com/platform.js" async></script>
+<div class="elfsight-app-beb4a331-0ecc-4c09-b401-4d88d35cbf03" data-elfsight-app-lazy></div>
+
+<script>
+/* ══════════ DATA ══════════ */
+const LADA_REGIONS = [
+  { region:'África', countries:[
+    {flag:'🇩🇿',name:'Argelia',dial:'+213'},{flag:'🇦🇴',name:'Angola',dial:'+244'},{flag:'🇧🇯',name:'Benín',dial:'+229'},
+    {flag:'🇧🇼',name:'Botsuana',dial:'+267'},{flag:'🇧🇫',name:'Burkina Faso',dial:'+226'},{flag:'🇧🇮',name:'Burundi',dial:'+257'},
+    {flag:'🇨🇻',name:'Cabo Verde',dial:'+238'},{flag:'🇨🇲',name:'Camerún',dial:'+237'},{flag:'🇨🇫',name:'Centroáfrica',dial:'+236'},
+    {flag:'🇹🇩',name:'Chad',dial:'+235'},{flag:'🇰🇲',name:'Comoras',dial:'+269'},{flag:'🇨🇬',name:'Congo',dial:'+242'},
+    {flag:'🇨🇮',name:'Costa de Marfil',dial:'+225'},{flag:'🇪🇬',name:'Egipto',dial:'+20'},{flag:'🇪🇷',name:'Eritrea',dial:'+291'},
+    {flag:'🇸🇿',name:'Esuatini',dial:'+268'},{flag:'🇪🇹',name:'Etiopía',dial:'+251'},{flag:'🇬🇦',name:'Gabón',dial:'+241'},
+    {flag:'🇬🇲',name:'Gambia',dial:'+220'},{flag:'🇬🇭',name:'Ghana',dial:'+233'},{flag:'🇬🇳',name:'Guinea',dial:'+224'},
+    {flag:'🇬🇼',name:'Guinea-Bisáu',dial:'+245'},{flag:'🇰🇪',name:'Kenia',dial:'+254'},{flag:'🇱🇸',name:'Lesoto',dial:'+266'},
+    {flag:'🇱🇷',name:'Liberia',dial:'+231'},{flag:'🇱🇾',name:'Libia',dial:'+218'},{flag:'🇲🇬',name:'Madagascar',dial:'+261'},
+    {flag:'🇲🇼',name:'Malaui',dial:'+265'},{flag:'🇲🇱',name:'Malí',dial:'+223'},{flag:'🇲🇦',name:'Marruecos',dial:'+212'},
+    {flag:'🇲🇺',name:'Mauricio',dial:'+230'},{flag:'🇲🇷',name:'Mauritania',dial:'+222'},{flag:'🇲🇿',name:'Mozambique',dial:'+258'},
+    {flag:'🇳🇦',name:'Namibia',dial:'+264'},{flag:'🇳🇪',name:'Níger',dial:'+227'},{flag:'🇳🇬',name:'Nigeria',dial:'+234'},
+    {flag:'🇷🇼',name:'Ruanda',dial:'+250'},{flag:'🇸🇳',name:'Senegal',dial:'+221'},{flag:'🇸🇱',name:'Sierra Leona',dial:'+232'},
+    {flag:'🇸🇴',name:'Somalia',dial:'+252'},{flag:'🇸🇩',name:'Sudán',dial:'+249'},{flag:'🇸🇸',name:'Sudán del Sur',dial:'+211'},
+    {flag:'🇹🇿',name:'Tanzania',dial:'+255'},{flag:'🇹🇬',name:'Togo',dial:'+228'},{flag:'🇹🇳',name:'Túnez',dial:'+216'},
+    {flag:'🇺🇬',name:'Uganda',dial:'+256'},{flag:'🇿🇲',name:'Zambia',dial:'+260'},{flag:'🇿🇼',name:'Zimbabue',dial:'+263'},
+  ]},
+  { region:'América Central y Caribe', countries:[
+    {flag:'🇧🇿',name:'Belice',dial:'+501'},{flag:'🇨🇷',name:'Costa Rica',dial:'+506'},{flag:'🇨🇺',name:'Cuba',dial:'+53'},
+    {flag:'🇸🇻',name:'El Salvador',dial:'+503'},{flag:'🇬🇹',name:'Guatemala',dial:'+502'},{flag:'🇭🇹',name:'Haití',dial:'+509'},
+    {flag:'🇭🇳',name:'Honduras',dial:'+504'},{flag:'🇯🇲',name:'Jamaica',dial:'+1-876'},{flag:'🇳🇮',name:'Nicaragua',dial:'+505'},
+    {flag:'🇵🇦',name:'Panamá',dial:'+507'},{flag:'🇵🇷',name:'Puerto Rico',dial:'+1-787'},{flag:'🇩🇴',name:'República Dominicana',dial:'+1-809'},
+    {flag:'🇹🇹',name:'Trinidad y Tobago',dial:'+1-868'},
+  ]},
+  { region:'América del Norte', countries:[
+    {flag:'🇨🇦',name:'Canadá',dial:'+1'},{flag:'🇲🇽',name:'México',dial:'+52'},{flag:'🇺🇸',name:'Estados Unidos',dial:'+1'},
+  ]},
+  { region:'América del Sur', countries:[
+    {flag:'🇦🇷',name:'Argentina',dial:'+54'},{flag:'🇧🇴',name:'Bolivia',dial:'+591'},{flag:'🇧🇷',name:'Brasil',dial:'+55'},
+    {flag:'🇨🇱',name:'Chile',dial:'+56'},{flag:'🇨🇴',name:'Colombia',dial:'+57'},{flag:'🇪🇨',name:'Ecuador',dial:'+593'},
+    {flag:'🇬🇾',name:'Guyana',dial:'+592'},{flag:'🇵🇾',name:'Paraguay',dial:'+595'},{flag:'🇵🇪',name:'Perú',dial:'+51'},
+    {flag:'🇸🇷',name:'Surinam',dial:'+597'},{flag:'🇺🇾',name:'Uruguay',dial:'+598'},{flag:'🇻🇪',name:'Venezuela',dial:'+58'},
+  ]},
+  { region:'Asia', countries:[
+    {flag:'🇸🇦',name:'Arabia Saudita',dial:'+966'},{flag:'🇦🇲',name:'Armenia',dial:'+374'},{flag:'🇦🇿',name:'Azerbaiyán',dial:'+994'},
+    {flag:'🇧🇭',name:'Baréin',dial:'+973'},{flag:'🇧🇩',name:'Bangladés',dial:'+880'},{flag:'🇧🇳',name:'Brunéi',dial:'+673'},
+    {flag:'🇧🇹',name:'Bután',dial:'+975'},{flag:'🇰🇭',name:'Camboya',dial:'+855'},{flag:'🇨🇳',name:'China',dial:'+86'},
+    {flag:'🇰🇵',name:'Corea del Norte',dial:'+850'},{flag:'🇰🇷',name:'Corea del Sur',dial:'+82'},{flag:'🇦🇪',name:'Emiratos Árabes Unidos',dial:'+971'},
+    {flag:'🇵🇭',name:'Filipinas',dial:'+63'},{flag:'🇬🇪',name:'Georgia',dial:'+995'},{flag:'🇮🇳',name:'India',dial:'+91'},
+    {flag:'🇮🇩',name:'Indonesia',dial:'+62'},{flag:'🇮🇶',name:'Irak',dial:'+964'},{flag:'🇮🇷',name:'Irán',dial:'+98'},
+    {flag:'🇮🇱',name:'Israel',dial:'+972'},{flag:'🇯🇵',name:'Japón',dial:'+81'},{flag:'🇯🇴',name:'Jordania',dial:'+962'},
+    {flag:'🇰🇿',name:'Kazajistán',dial:'+7'},{flag:'🇰🇬',name:'Kirguistán',dial:'+996'},{flag:'🇰🇼',name:'Kuwait',dial:'+965'},
+    {flag:'🇱🇦',name:'Laos',dial:'+856'},{flag:'🇱🇧',name:'Líbano',dial:'+961'},{flag:'🇲🇾',name:'Malasia',dial:'+60'},
+    {flag:'🇲🇻',name:'Maldivas',dial:'+960'},{flag:'🇲🇳',name:'Mongolia',dial:'+976'},{flag:'🇲🇲',name:'Myanmar',dial:'+95'},
+    {flag:'🇳🇵',name:'Nepal',dial:'+977'},{flag:'🇴🇲',name:'Omán',dial:'+968'},{flag:'🇵🇰',name:'Pakistán',dial:'+92'},
+    {flag:'🇵🇸',name:'Palestina',dial:'+970'},{flag:'🇶🇦',name:'Qatar',dial:'+974'},{flag:'🇸🇬',name:'Singapur',dial:'+65'},
+    {flag:'🇸🇾',name:'Siria',dial:'+963'},{flag:'🇱🇰',name:'Sri Lanka',dial:'+94'},{flag:'🇹🇭',name:'Tailandia',dial:'+66'},
+    {flag:'🇹🇼',name:'Taiwán',dial:'+886'},{flag:'🇹🇯',name:'Tayikistán',dial:'+992'},{flag:'🇹🇲',name:'Turkmenistán',dial:'+993'},
+    {flag:'🇹🇷',name:'Turquía',dial:'+90'},{flag:'🇺🇿',name:'Uzbekistán',dial:'+998'},{flag:'🇻🇳',name:'Vietnam',dial:'+84'},
+    {flag:'🇾🇪',name:'Yemen',dial:'+967'},
+  ]},
+  { region:'Europa', countries:[
+    {flag:'🇦🇱',name:'Albania',dial:'+355'},{flag:'🇩🇪',name:'Alemania',dial:'+49'},{flag:'🇦🇩',name:'Andorra',dial:'+376'},
+    {flag:'🇦🇹',name:'Austria',dial:'+43'},{flag:'🇧🇾',name:'Bielorrusia',dial:'+375'},{flag:'🇧🇪',name:'Bélgica',dial:'+32'},
+    {flag:'🇧🇦',name:'Bosnia y Herzegovina',dial:'+387'},{flag:'🇧🇬',name:'Bulgaria',dial:'+359'},{flag:'🇨🇾',name:'Chipre',dial:'+357'},
+    {flag:'🇭🇷',name:'Croacia',dial:'+385'},{flag:'🇩🇰',name:'Dinamarca',dial:'+45'},{flag:'🇸🇰',name:'Eslovaquia',dial:'+421'},
+    {flag:'🇸🇮',name:'Eslovenia',dial:'+386'},{flag:'🇪🇸',name:'España',dial:'+34'},{flag:'🇪🇪',name:'Estonia',dial:'+372'},
+    {flag:'🇫🇮',name:'Finlandia',dial:'+358'},{flag:'🇫🇷',name:'Francia',dial:'+33'},{flag:'🇬🇷',name:'Grecia',dial:'+30'},
+    {flag:'🇭🇺',name:'Hungría',dial:'+36'},{flag:'🇮🇪',name:'Irlanda',dial:'+353'},{flag:'🇮🇸',name:'Islandia',dial:'+354'},
+    {flag:'🇮🇹',name:'Italia',dial:'+39'},{flag:'🇽🇰',name:'Kosovo',dial:'+383'},{flag:'🇱🇻',name:'Letonia',dial:'+371'},
+    {flag:'🇱🇮',name:'Liechtenstein',dial:'+423'},{flag:'🇱🇹',name:'Lituania',dial:'+370'},{flag:'🇱🇺',name:'Luxemburgo',dial:'+352'},
+    {flag:'🇲🇰',name:'Macedonia del Norte',dial:'+389'},{flag:'🇲🇹',name:'Malta',dial:'+356'},{flag:'🇲🇩',name:'Moldavia',dial:'+373'},
+    {flag:'🇲🇨',name:'Mónaco',dial:'+377'},{flag:'🇲🇪',name:'Montenegro',dial:'+382'},{flag:'🇳🇴',name:'Noruega',dial:'+47'},
+    {flag:'🇳🇱',name:'Países Bajos',dial:'+31'},{flag:'🇵🇱',name:'Polonia',dial:'+48'},{flag:'🇵🇹',name:'Portugal',dial:'+351'},
+    {flag:'🇬🇧',name:'Reino Unido',dial:'+44'},{flag:'🇨🇿',name:'República Checa',dial:'+420'},{flag:'🇷🇴',name:'Rumanía',dial:'+40'},
+    {flag:'🇷🇺',name:'Rusia',dial:'+7'},{flag:'🇸🇲',name:'San Marino',dial:'+378'},{flag:'🇷🇸',name:'Serbia',dial:'+381'},
+    {flag:'🇸🇪',name:'Suecia',dial:'+46'},{flag:'🇨🇭',name:'Suiza',dial:'+41'},{flag:'🇺🇦',name:'Ucrania',dial:'+380'},
+    {flag:'🇻🇦',name:'Vaticano',dial:'+39'},
+  ]},
+  { region:'Oceanía', countries:[
+    {flag:'🇦🇺',name:'Australia',dial:'+61'},{flag:'🇫🇯',name:'Fiyi',dial:'+679'},{flag:'🇸🇧',name:'Islas Salomón',dial:'+677'},
+    {flag:'🇳🇿',name:'Nueva Zelanda',dial:'+64'},{flag:'🇵🇬',name:'Papúa Nueva Guinea',dial:'+675'},{flag:'🇼🇸',name:'Samoa',dial:'+685'},
+    {flag:'🇹🇴',name:'Tonga',dial:'+676'},{flag:'🇻🇺',name:'Vanuatu',dial:'+678'},
+  ]},
+];
+
+const BRANDS = {
+  'Chinas':         ['BAIC','BYD','Chery','DFSK','Dongfeng','FAW','Foton','GAC','Geely','Haval','JAC','Jetour','Leapmotor','Maxus','MG','Nio','Ora','Roewe','Saic','Wuling','Xpeng','Zotye'],
+  'Coreanas':       ['Genesis','Hyundai','Kia','SsangYong'],
+  'Europeas':       ['Alfa Romeo','Aston Martin','Audi','Bentley','BMW','Bugatti','Citroën','Ferrari','Fiat','Jaguar','Lamborghini','Land Rover','Lotus','Maserati','McLaren','Mercedes-Benz','MINI','Opel','Pagani','Peugeot','Porsche','Renault','Rolls-Royce','Seat','Skoda','Smart','Vauxhall','Volkswagen','Volvo'],
+  'Estadounidenses':['Buick','Cadillac','Chevrolet','Chrysler','Dodge','Ford','GMC','Jeep','Lincoln','RAM','Tesla'],
+  'Japonesas':      ['Acura','Daihatsu','Honda','Infiniti','Isuzu','Lexus','Mazda','Mitsubishi','Nissan','Subaru','Suzuki','Toyota','Yamaha'],
+  'Otra':           ['Otra marca'],
+};
+
+const COPOMEX_TOKEN = '36da398a-1848-44f3-a952-06c9bfb02cc8';
+const MAX_BYTES = 5 * 1024 * 1024;
+let uploadedFiles = [];
+
+/* ══════════ INIT ══════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('fecha_nacimiento').setAttribute('max', new Date().toISOString().split('T')[0]);
+  initYears(); initLada(); initCP(); initBrand(); initFileUpload(); initValidation(); initForm();
+  checkFormValidity();
+});
+
+function initYears() {
+  const sel = document.getElementById('anio-select');
+  const cur = new Date().getFullYear();
+  for (let y = cur + 1; y >= 1960; y--) {
+    const o = document.createElement('option'); o.value = y; o.textContent = y; sel.appendChild(o);
+  }
+}
+
+/* ══════════ LADA ══════════ */
+function initLada() {
+  const btn = document.getElementById('lada-btn');
+  const dropdown = document.getElementById('lada-dropdown');
+  const listEl = document.getElementById('lada-list');
+  const searchInput = document.getElementById('lada-search');
+  const flagEl = document.getElementById('lada-flag');
+  const codeEl = document.getElementById('lada-code');
+  const valInput = document.getElementById('lada-val');
+
+  function build(q = '') {
+    listEl.innerHTML = '';
+    const lq = q.toLowerCase();
+    LADA_REGIONS.forEach(group => {
+      const sorted = [...group.countries].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+      const matches = sorted.filter(c => !q || c.name.toLowerCase().includes(lq) || c.dial.includes(lq));
+      if (!matches.length) return;
+      const gl = document.createElement('div'); gl.className = 'lada-group-label'; gl.textContent = group.region;
+      listEl.appendChild(gl);
+      matches.forEach(c => {
+        const div = document.createElement('div'); div.className = 'lada-option';
+        div.innerHTML = `<span style="font-size:18px">${c.flag}</span><span class="country">${c.name}</span><span class="dial">${c.dial}</span>`;
+        div.addEventListener('click', () => {
+          flagEl.textContent = c.flag; codeEl.textContent = c.dial; valInput.value = c.dial;
+          btn.classList.remove('open'); dropdown.classList.remove('open'); checkFormValidity();
+        });
+        listEl.appendChild(div);
+      });
+    });
+  }
+
+  build();
+  btn.addEventListener('click', e => { e.stopPropagation(); const o = dropdown.classList.toggle('open'); btn.classList.toggle('open', o); if (o) { searchInput.focus(); searchInput.value = ''; build(); } });
+  searchInput.addEventListener('input', () => build(searchInput.value));
+  document.addEventListener('click', () => { dropdown.classList.remove('open'); btn.classList.remove('open'); });
+  dropdown.addEventListener('click', e => e.stopPropagation());
+}
+
+/* ══════════ COPOMEX ══════════ */
+function initCP() {
+  const input = document.getElementById('cp-input');
+  const loading = document.getElementById('cp-loading');
+  const extra = document.getElementById('cp-extra');
+  const colSel = document.getElementById('cp-colonia');
+  let timer;
+
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    const cp = input.value.trim();
+    if (cp.length !== 5) { extra.style.display = 'none'; checkFormValidity(); return; }
+    timer = setTimeout(() => doFetch(cp), 600);
+  });
+
+  async function doFetch(cp) {
+    loading.style.display = 'flex';
+    try {
+      const res = await fetch(`https://api.copomex.com/v1/codigo_postal/${cp}?token=${COPOMEX_TOKEN}`);
+      const data = await res.json();
+      if (!data || data.error) { extra.style.display = 'none'; return; }
+      const arr = Array.isArray(data) ? data : [data];
+      const info = arr[0];
+      document.getElementById('cp-estado').value = info.estado || info.response?.estado || '';
+      document.getElementById('cp-municipio').value = info.municipio || info.response?.municipio || '';
+      const colonias = [...new Set(arr.map(d => d.asentamiento || d.response?.asentamiento || '').filter(Boolean))].sort();
+      colSel.innerHTML = '<option value="">Selecciona tu colonia...</option>';
+      colonias.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; colSel.appendChild(o); });
+      extra.style.display = 'flex';
+    } catch { extra.style.display = 'none'; }
+    finally { loading.style.display = 'none'; checkFormValidity(); }
+  }
+
+  colSel.addEventListener('change', checkFormValidity);
+}
+
+/* ══════════ BRAND ══════════ */
+function initBrand() {
+  const input = document.getElementById('brand-input');
+  const sugg = document.getElementById('brand-suggestions');
+  const otherField = document.getElementById('brand-other-field');
+  const otherInput = document.getElementById('marca_otro');
+
+  function show(q = '') {
+    sugg.innerHTML = '';
+    const lq = q.toLowerCase();
+    let any = false;
+    Object.entries(BRANDS).forEach(([cat, brands]) => {
+      const matches = brands.filter(b => !q || b.toLowerCase().includes(lq));
+      if (!matches.length) return;
+      any = true;
+      const gl = document.createElement('div'); gl.className = 'brand-group-label';
+      gl.textContent = cat === 'Otra' ? 'Otra marca' : `Marcas ${cat}`;
+      sugg.appendChild(gl);
+      matches.forEach(b => {
+        const div = document.createElement('div'); div.className = 'brand-option'; div.textContent = b;
+        div.addEventListener('mousedown', e => {
+          e.preventDefault(); input.value = b; sugg.classList.remove('open');
+          const isOther = b === 'Otra marca';
+          otherField.style.display = isOther ? 'block' : 'none';
+          otherInput.required = isOther;
+          checkFormValidity();
+        });
+        sugg.appendChild(div);
+      });
+    });
+    if (any) sugg.classList.add('open'); else sugg.classList.remove('open');
+  }
+
+  input.addEventListener('focus', () => show(input.value));
+  input.addEventListener('input', () => { show(input.value); checkFormValidity(); });
+  input.addEventListener('blur', () => setTimeout(() => sugg.classList.remove('open'), 150));
+  otherInput.addEventListener('input', checkFormValidity);
+  document.addEventListener('click', e => { if (!e.target.closest('.brand-wrap')) sugg.classList.remove('open'); });
+}
+
+/* ══════════ FILE UPLOAD ══════════ */
+function initFileUpload() {
+  const drop = document.getElementById('file-drop');
+  const fi = document.getElementById('file-input');
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
+  drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag'); addFiles(e.dataTransfer.files); });
+  fi.addEventListener('change', () => { addFiles(fi.files); fi.value = ''; });
+}
+
+function addFiles(files) {
+  for (const file of files) {
+    const used = uploadedFiles.reduce((a, f) => a + f.file.size, 0);
+    if (used + file.size > MAX_BYTES) { alert(`"${file.name}" supera el límite de 5 MB. Comprime en ZIP/RAR.`); continue; }
+    uploadedFiles.push({ file, id: Date.now() + Math.random() });
+  }
+  renderFiles(); updateBar(); checkFormValidity();
+}
+
+window.removeFile = function(id) {
+  uploadedFiles = uploadedFiles.filter(f => f.id !== id);
+  renderFiles(); updateBar(); checkFormValidity();
+};
+
+function renderFiles() {
+  const list = document.getElementById('file-list');
+  list.innerHTML = '';
+  uploadedFiles.forEach(({ file, id }) => {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const icon = ext === 'pdf' ? '📄' : ['jpg','jpeg','png'].includes(ext) ? '🖼️' : ['zip','rar'].includes(ext) ? '🗜️' : '📁';
+    const div = document.createElement('div'); div.className = 'file-item';
+    div.innerHTML = `<span class="file-item-icon">${icon}</span><span class="file-item-name">${file.name}</span><span class="file-item-size">${fmtBytes(file.size)}</span><button type="button" class="file-item-del" onclick="removeFile(${id})">×</button>`;
+    list.appendChild(div);
+  });
+}
+
+function updateBar() {
+  const used = uploadedFiles.reduce((a, f) => a + f.file.size, 0);
+  const pct = Math.min((used / MAX_BYTES) * 100, 100);
+  const bar = document.getElementById('storage-bar');
+  document.getElementById('storage-text').textContent = `${fmtBytes(used)} de 5 MB`;
+  bar.style.width = pct + '%';
+  const remaining = MAX_BYTES - used;
+  let color, dot, msg;
+  if (pct >= 100) { color = 'var(--danger)'; dot = '#EF4444'; msg = '🔴 Límite alcanzado — elimina archivos para continuar'; }
+  else if (pct >= 75) { color = 'var(--warning)'; dot = '#F59E0B'; msg = `⚠️ Casi lleno — quedan ${fmtBytes(remaining)}`; }
+  else { color = 'var(--success)'; dot = '#10B981'; msg = `✅ ${fmtBytes(remaining)} disponibles`; }
+  bar.style.background = color;
+  document.getElementById('storage-status').innerHTML = `<span class="status-dot" style="background:${dot}"></span><span style="font-size:12px;color:${dot};font-weight:600;">${msg}</span>`;
+  document.getElementById('storage-bar-wrap').style.display = uploadedFiles.length ? 'block' : 'none';
+}
+
+function fmtBytes(b) {
+  if (b >= 1048576) return (b/1048576).toFixed(2)+' MB';
+  if (b >= 1024) return (b/1024).toFixed(1)+' KB';
+  return b+' B';
+}
+
+/* ══════════ VALIDATION ══════════ */
+const CURP_RE = /^[A-Z]{4}[0-9]{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]{2}$/;
+const RFC_PF  = /^[A-ZÑ&]{4}[0-9]{6}[A-Z0-9]{3}$/;
+const RFC_PM  = /^[A-ZÑ&]{3}[0-9]{6}[A-Z0-9]{3}$/;
+
+function initValidation() {
+  const curpEl = document.getElementById('f-curp');
+  const rfcEl  = document.getElementById('f-rfc');
+
+  curpEl.addEventListener('input', () => {
+    curpEl.value = curpEl.value.toUpperCase();
+    const ok = CURP_RE.test(curpEl.value.trim());
+    curpEl.classList.toggle('v-invalid', curpEl.value.length > 0 && !ok);
+    curpEl.classList.toggle('v-valid', ok);
+    document.getElementById('err-curp').classList.toggle('show', curpEl.value.length > 0 && !ok);
+    checkFormValidity();
+  });
+
+  rfcEl.addEventListener('input', () => {
+    rfcEl.value = rfcEl.value.toUpperCase();
+    const ok = RFC_PF.test(rfcEl.value.trim()) || RFC_PM.test(rfcEl.value.trim());
+    rfcEl.classList.toggle('v-invalid', rfcEl.value.length > 0 && !ok);
+    rfcEl.classList.toggle('v-valid', ok);
+    document.getElementById('err-rfc').classList.toggle('show', rfcEl.value.length > 0 && !ok);
+    checkFormValidity();
+  });
+
+  // Attach to all required fields
+  document.querySelectorAll('[data-req]').forEach(el => {
+    el.addEventListener('input', checkFormValidity);
+    el.addEventListener('change', checkFormValidity);
+  });
+}
+
+function checkFormValidity() {
+  const fields = Array.from(document.querySelectorAll('[data-req]'));
+  const coloniaShown = document.getElementById('cp-extra').style.display !== 'none';
+  const colonia = document.getElementById('cp-colonia');
+
+  let total = 0, filled = 0, allOk = true;
+
+  fields.forEach(el => {
+    // Skip if element or ancestor is hidden (except colonia which we handle separately)
+    if (!el.offsetParent && el !== colonia) return;
+    total++;
+    const val = el.value.trim();
+    if (val) filled++; else allOk = false;
+  });
+
+  // Colonia: only required when CP section visible
+  if (coloniaShown) {
+    total++;
+    if (colonia.value) filled++; else allOk = false;
+  }
+
+  // CURP
+  const curpOk = CURP_RE.test(document.getElementById('f-curp').value.trim());
+  if (!curpOk) allOk = false;
+
+  // RFC
+  const rfcVal = document.getElementById('f-rfc').value.trim();
+  const rfcOk = RFC_PF.test(rfcVal) || RFC_PM.test(rfcVal);
+  if (!rfcOk) allOk = false;
+
+  // Files
+  total++;
+  if (uploadedFiles.length > 0) filled++; else allOk = false;
+  document.getElementById('file-required-note').style.display = uploadedFiles.length === 0 ? 'block' : 'none';
+
+  // Brand "otra marca"
+  const brandInput = document.getElementById('brand-input');
+  const otherInput = document.getElementById('marca_otro');
+  if (brandInput.value === 'Otra marca' && !otherInput.value.trim()) allOk = false;
+
+  // Progress
+  const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+  const fill = document.getElementById('progress-fill');
+  fill.style.width = pct + '%';
+  fill.style.background = pct === 100 ? 'var(--success)' : 'var(--blue)';
+  document.getElementById('progress-label').textContent = pct === 100 ? '✅ ¡Todo completo!' : `${filled} / ${total} campos completos`;
+
+  document.getElementById('btn-submit').disabled = !allOk;
+}
+
+/* ══════════ FORM SUBMIT ══════════ */
+function initForm() {
+  document.getElementById('ava-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true; btn.innerHTML = '⏳ Enviando solicitud...';
+
+    try {
+      const token = await new Promise((res, rej) => {
+        if (typeof grecaptcha !== 'undefined') {
+          grecaptcha.ready(() => grecaptcha.execute('6LcxxxxxxxxxAAAAAxxxxxxxxxxxx-xxxxxxxxxxx', {action:'submit'}).then(res).catch(rej));
+        } else res('');
+      });
+      document.getElementById('g-recaptcha-response').value = token;
+    } catch {}
+
+    const form = document.getElementById('ava-form');
+    const fd = new FormData(form);
+    fd.delete('adjuntos');
+    uploadedFiles.forEach(({file}, i) => fd.append(`adjunto_${i+1}`, file, file.name));
+
+    try {
+      const res = await fetch(form.action, { method:'POST', body:fd });
+      if (res.ok || res.redirected) {
+        btn.innerHTML = '✅ ¡Solicitud enviada exitosamente!';
+        btn.style.background = 'var(--success)'; btn.style.opacity = '1';
+        form.reset(); uploadedFiles = [];
+        document.getElementById('file-list').innerHTML = '';
+        document.getElementById('storage-bar-wrap').style.display = 'none';
+        document.getElementById('cp-extra').style.display = 'none';
+        document.getElementById('brand-other-field').style.display = 'none';
+        checkFormValidity();
+      } else throw new Error();
+    } catch {
+      btn.innerHTML = '❌ Error al enviar — intenta nuevamente';
+      btn.style.background = 'var(--danger)'; btn.style.opacity = '1'; btn.disabled = false;
+      setTimeout(() => {
+        btn.innerHTML = '<span>✉️</span> Enviar Solicitud';
+        btn.style.background = ''; btn.style.opacity = '';
+        checkFormValidity();
+      }, 4000);
+    }
+  });
+}
+</script>
+</body>
+</html>
