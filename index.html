@@ -69,16 +69,28 @@
 
     /* PHONE */
     .phone-wrap { display:flex; gap:8px; }
-    .lada-select-wrap { position:relative; flex:0 0 auto; }
+    .lada-select-wrap { flex:0 0 auto; }
     .lada-btn { display:flex; align-items:center; gap:6px; padding:11px 12px; border:1.5px solid var(--border); border-radius:var(--radius); background:var(--white); cursor:pointer; white-space:nowrap; min-width:120px; user-select:none; transition:border-color 0.2s; }
     .lada-btn:hover,.lada-btn.open { border-color:var(--blue); }
     .lada-btn .flag { font-size:18px; }
     .lada-btn .code { font-weight:600; font-size:13px; color:var(--navy); }
-    .lada-dropdown { position:absolute; top:calc(100% + 4px); left:0; z-index:200; background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-lg); width:310px; max-height:320px; overflow-y:auto; display:none; }
-    .lada-dropdown.open { display:block; }
-    .lada-search { padding:10px 12px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--white); z-index:1; }
-    .lada-search input { width:100%; padding:7px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; }
-    .lada-group-label { padding:8px 14px 4px; font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--gray); background:var(--gray-light); }
+    /* Lada: fixed viewport-aware panel, never clipped */
+    .lada-backdrop { display:none; position:fixed; inset:0; z-index:998; }
+    .lada-backdrop.open { display:block; }
+    .lada-panel {
+      display:none; position:fixed; z-index:999;
+      background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius);
+      box-shadow:var(--shadow-lg);
+      width:min(320px, calc(100vw - 24px));
+      max-height:min(340px, 55vh);
+      flex-direction:column; overflow:hidden;
+    }
+    .lada-panel.open { display:flex; }
+    .lada-search { padding:10px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .lada-search input { width:100%; padding:7px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; }
+    .lada-search input:focus { border-color:var(--blue); }
+    .lada-scroll { overflow-y:auto; flex:1; }
+    .lada-group-label { padding:7px 14px 3px; font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--gray); background:var(--gray-light); position:sticky; top:0; }
     .lada-option { display:flex; align-items:center; gap:10px; padding:9px 14px; cursor:pointer; font-size:13px; transition:background 0.15s; }
     .lada-option:hover { background:rgba(22,93,255,0.07); }
     .lada-option .country { color:var(--dark); flex:1; }
@@ -126,6 +138,34 @@
     .file-item-size { color:var(--gray); font-size:12px; flex-shrink:0; }
     .file-item-del { background:none; border:none; cursor:pointer; color:var(--danger); font-size:20px; padding:0 2px; line-height:1; flex-shrink:0; transition:opacity 0.2s; }
     .file-item-del:hover { opacity:0.7; }
+
+    /* DECLARACION CHECKBOX */
+    .decl-box {
+      background: linear-gradient(135deg, rgba(10,31,68,0.03) 0%, rgba(22,93,255,0.04) 100%);
+      border: 1.5px solid rgba(22,93,255,0.20);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex; gap: 14px; align-items: flex-start;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .decl-box:hover { border-color: var(--blue); }
+    .decl-box.checked { border-color: var(--success); background: linear-gradient(135deg,rgba(16,185,129,0.04) 0%,rgba(16,185,129,0.07) 100%); }
+    .decl-checkbox {
+      width: 22px; height: 22px; flex-shrink: 0;
+      border: 2px solid var(--border); border-radius: 6px;
+      background: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .decl-box.checked .decl-checkbox { border-color: var(--success); background: var(--success); }
+    .decl-checkmark { display:none; color:white; font-size:14px; font-weight:700; line-height:1; }
+    .decl-box.checked .decl-checkmark { display:block; }
+    .decl-text { font-size:12px; line-height:1.7; color:var(--dark); }
+    .decl-text strong { color:var(--navy); }
+    .decl-text em { font-style:normal; color:var(--blue); font-weight:600; }
+    .decl-required-note { font-size:11px; color:var(--danger); font-weight:600; margin-top:4px; display:none; }
 
     /* SUBMIT */
     .btn-submit { width:100%; padding:16px; background:var(--blue); color:var(--white); font-family:'Outfit',sans-serif; font-size:16px; font-weight:600; letter-spacing:0.5px; border:none; border-radius:var(--radius); cursor:pointer; transition:background 0.2s,transform 0.1s,box-shadow 0.2s,opacity 0.3s; box-shadow:0 4px 18px rgba(22,93,255,0.35); display:flex; align-items:center; justify-content:center; gap:8px; }
@@ -264,10 +304,6 @@
                 <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="#0A1F44" stroke-width="1.5" stroke-linecap="round"/></svg>
               </div>
               <input type="hidden" name="lada" id="lada-val" value="+52" />
-              <div class="lada-dropdown" id="lada-dropdown">
-                <div class="lada-search"><input type="text" id="lada-search" placeholder="Buscar país o código..." /></div>
-                <div id="lada-list"></div>
-              </div>
             </div>
             <input type="text" name="telefono" placeholder="Número telefónico" inputmode="tel" data-req style="flex:1;" />
           </div>
@@ -388,6 +424,28 @@
           <div class="file-list" id="file-list"></div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- ══ DECLARACIÓN JURADA ══ -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">📜</div>
+        <h2>Declaración y Conformidad</h2>
+      </div>
+      <div class="card-body">
+        <div class="decl-box" id="decl-box" onclick="toggleDecl()">
+          <div class="decl-checkbox" id="decl-checkbox">
+            <span class="decl-checkmark">✓</span>
+          </div>
+          <div>
+            <div class="decl-text">
+              Bajo protesta de decir verdad, declaro que <strong>toda la información proporcionada en este formulario es verídica, correcta y completa</strong>, y que los documentos adjuntos son <strong>copias fieles de los originales</strong>, sin alteraciones ni modificaciones de ningún tipo.<br><br>
+              Asimismo, manifiesto que estoy plenamente consciente de que <em>la marcación de esta casilla tiene la misma validez jurídica que mi firma autógrafa</em>, de conformidad con las disposiciones aplicables en materia de contratación y comunicaciones electrónicas, aceptando plena responsabilidad legal por la veracidad de lo declarado.
+            </div>
+            <div class="decl-required-note" id="decl-required-note">⚠️ Debes aceptar la declaración para poder enviar tu solicitud.</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -522,12 +580,19 @@ function initYears() {
 /* ══════════ LADA ══════════ */
 function initLada() {
   const btn = document.getElementById('lada-btn');
-  const dropdown = document.getElementById('lada-dropdown');
-  const listEl = document.getElementById('lada-list');
-  const searchInput = document.getElementById('lada-search');
   const flagEl = document.getElementById('lada-flag');
   const codeEl = document.getElementById('lada-code');
   const valInput = document.getElementById('lada-val');
+
+  // Build panel elements dynamically and append to body
+  const backdrop = document.createElement('div'); backdrop.className = 'lada-backdrop'; backdrop.id = 'lada-backdrop';
+  const panel = document.createElement('div'); panel.className = 'lada-panel'; panel.id = 'lada-panel';
+  panel.innerHTML = `<div class="lada-search"><input type="text" id="lada-search" placeholder="Buscar país o código..." autocomplete="off" /></div><div class="lada-scroll" id="lada-list"></div>`;
+  document.body.appendChild(backdrop);
+  document.body.appendChild(panel);
+
+  const searchInput = document.getElementById('lada-search');
+  const listEl = document.getElementById('lada-list');
 
   function build(q = '') {
     listEl.innerHTML = '';
@@ -543,18 +608,45 @@ function initLada() {
         div.innerHTML = `<span style="font-size:18px">${c.flag}</span><span class="country">${c.name}</span><span class="dial">${c.dial}</span>`;
         div.addEventListener('click', () => {
           flagEl.textContent = c.flag; codeEl.textContent = c.dial; valInput.value = c.dial;
-          btn.classList.remove('open'); dropdown.classList.remove('open'); checkFormValidity();
+          closePanel(); checkFormValidity();
         });
         listEl.appendChild(div);
       });
     });
   }
 
+  function openPanel() {
+    const rect = btn.getBoundingClientRect();
+    const panelW = Math.min(320, window.innerWidth - 24);
+    // Position: prefer below button, align left; flip up if not enough room below
+    let top = rect.bottom + 6;
+    let left = rect.left;
+    const panelH = Math.min(340, window.innerHeight * 0.55);
+    if (top + panelH > window.innerHeight - 10) top = Math.max(10, rect.top - panelH - 6);
+    if (left + panelW > window.innerWidth - 8) left = Math.max(8, window.innerWidth - panelW - 8);
+    panel.style.top = top + 'px';
+    panel.style.left = left + 'px';
+    panel.style.width = panelW + 'px';
+    panel.classList.add('open');
+    backdrop.classList.add('open');
+    btn.classList.add('open');
+    searchInput.value = ''; build();
+    setTimeout(() => searchInput.focus(), 50);
+  }
+
+  function closePanel() {
+    panel.classList.remove('open');
+    backdrop.classList.remove('open');
+    btn.classList.remove('open');
+  }
+
   build();
-  btn.addEventListener('click', e => { e.stopPropagation(); const o = dropdown.classList.toggle('open'); btn.classList.toggle('open', o); if (o) { searchInput.focus(); searchInput.value = ''; build(); } });
+  btn.addEventListener('click', e => { e.stopPropagation(); panel.classList.contains('open') ? closePanel() : openPanel(); });
+  btn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPanel(); } });
+  backdrop.addEventListener('click', closePanel);
   searchInput.addEventListener('input', () => build(searchInput.value));
-  document.addEventListener('click', () => { dropdown.classList.remove('open'); btn.classList.remove('open'); });
-  dropdown.addEventListener('click', e => e.stopPropagation());
+  window.addEventListener('resize', () => { if (panel.classList.contains('open')) openPanel(); });
+  window.addEventListener('scroll', () => { if (panel.classList.contains('open')) openPanel(); }, true);
 }
 
 /* ══════════ COPOMEX ══════════ */
@@ -576,17 +668,31 @@ function initCP() {
     loading.style.display = 'flex';
     try {
       const res = await fetch(`https://api.copomex.com/v1/codigo_postal/${cp}?token=${COPOMEX_TOKEN}`);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
-      if (!data || data.error) { extra.style.display = 'none'; return; }
-      const arr = Array.isArray(data) ? data : [data];
+      // COPOMEX returns { error, codigo_postal: [{...}] } or array directly
+      let arr = [];
+      if (Array.isArray(data)) {
+        arr = data;
+      } else if (data.codigo_postal) {
+        arr = Array.isArray(data.codigo_postal) ? data.codigo_postal : [data.codigo_postal];
+      } else if (data.response) {
+        arr = Array.isArray(data.response) ? data.response : [data.response];
+      }
+      if (!arr.length) { extra.style.display = 'none'; return; }
       const info = arr[0];
-      document.getElementById('cp-estado').value = info.estado || info.response?.estado || '';
-      document.getElementById('cp-municipio').value = info.municipio || info.response?.municipio || '';
-      const colonias = [...new Set(arr.map(d => d.asentamiento || d.response?.asentamiento || '').filter(Boolean))].sort();
+      const estado = info.estado || info.ESTADO || '';
+      const municipio = info.municipio || info.MUNICIPIO || info.ciudad || '';
+      document.getElementById('cp-estado').value = estado;
+      document.getElementById('cp-municipio').value = municipio;
+      const colonias = [...new Set(arr.map(d => d.asentamiento || d.ASENTAMIENTO || d.colonia || '').filter(Boolean))].sort();
       colSel.innerHTML = '<option value="">Selecciona tu colonia...</option>';
       colonias.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; colSel.appendChild(o); });
       extra.style.display = 'flex';
-    } catch { extra.style.display = 'none'; }
+    } catch(err) {
+      console.warn('COPOMEX error:', err);
+      extra.style.display = 'none';
+    }
     finally { loading.style.display = 'none'; checkFormValidity(); }
   }
 
@@ -765,6 +871,12 @@ function checkFormValidity() {
   const otherInput = document.getElementById('marca_otro');
   if (brandInput.value === 'Otra marca' && !otherInput.value.trim()) allOk = false;
 
+  // Declaration checkbox
+  total++;
+  const declChecked = document.getElementById('decl-box').classList.contains('checked');
+  if (declChecked) filled++; else allOk = false;
+  document.getElementById('decl-required-note').style.display = !declChecked && total > 1 ? 'block' : 'none';
+
   // Progress
   const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
   const fill = document.getElementById('progress-fill');
@@ -773,6 +885,13 @@ function checkFormValidity() {
   document.getElementById('progress-label').textContent = pct === 100 ? '✅ ¡Todo completo!' : `${filled} / ${total} campos completos`;
 
   document.getElementById('btn-submit').disabled = !allOk;
+}
+
+/* ══════════ DECLARATION CHECKBOX ══════════ */
+function toggleDecl() {
+  const box = document.getElementById('decl-box');
+  box.classList.toggle('checked');
+  checkFormValidity();
 }
 
 /* ══════════ FORM SUBMIT ══════════ */
