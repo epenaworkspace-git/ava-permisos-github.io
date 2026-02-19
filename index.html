@@ -368,12 +368,15 @@ input.vok{border-color:var(--ok)!important}
         </div>
       </div>
 
-      <!-- Marca — brand autocomplete (siempre re-abre) -->
+      <!-- Marca — custom select con buscador (mismo patrón que Género/Tipo/Año) -->
       <div class="field">
         <label>Marca<span class="req">*</span></label>
-        <div class="brand-wrap">
-          <input type="text" name="marca" id="f-marca" placeholder="Escribe o haz clic para seleccionar..." autocomplete="off" data-r/>
-          <div class="brand-sugg" id="brand-sugg"></div>
+        <div class="csel">
+          <button type="button" class="csel-btn" id="btn-marca">
+            <span class="csel-ph">Selecciona una marca...</span>
+            <svg class="csel-arr" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="#0A1F44" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <input type="hidden" name="marca" id="val-marca" data-r/>
         </div>
       </div>
       <div class="field" id="marca-otro-wrap" style="display:none">
@@ -940,60 +943,38 @@ function initCP() {
 }
 
 /* ════════════════════════════════════════════════════
-   BRAND AUTOCOMPLETE
-   Siempre abre el menú al hacer clic o focus,
-   incluso si ya hay un valor seleccionado.
+   BRAND — reconstruido con makeCustomSelect + buscador
+   Usa el mismo sistema de paneles flotantes que Género,
+   Tipo y Año: botón → panel fixed en body → velo.
+   Esto garantiza que se pueda abrir cuantas veces
+   se quiera sin ningún problema de blur o foco.
 ════════════════════════════════════════════════════ */
 function initBrand() {
-  const input      = document.getElementById('f-marca');
-  const sugg       = document.getElementById('brand-sugg');
-  const otroWrap   = document.getElementById('marca-otro-wrap');
-  const otroInput  = document.getElementById('f-marca-otro');
+  const otroWrap  = document.getElementById('marca-otro-wrap');
+  const otroInput = document.getElementById('f-marca-otro');
+  const hiddenVal = document.getElementById('val-marca');
 
-  function buildSugg(q = '') {
-    sugg.innerHTML = '';
-    const lq = q.toLowerCase();
-    let any = false;
-    Object.entries(MARCAS).forEach(([cat, brands]) => {
-      const matches = brands.filter(b => !q || b.toLowerCase().includes(lq));
-      if (!matches.length) return;
-      any = true;
-      const g = document.createElement('div'); g.className = 'brand-grp';
-      g.textContent = cat === 'Otra marca' ? 'Otra' : `Marcas ${cat}`;
-      sugg.appendChild(g);
-      matches.forEach(b => {
-        const d = document.createElement('div'); d.className = 'brand-opt'; d.textContent = b;
-        d.addEventListener('mousedown', e => {
-          e.preventDefault();
-          input.value = b;
-          sugg.classList.remove('on');
-          const esOtra = b === 'Otra marca';
-          otroWrap.style.display  = esOtra ? 'block' : 'none';
-          otroInput.required      = esOtra;
-          if (!esOtra) otroInput.value = '';
-          checkValidity();
-        });
-        sugg.appendChild(d);
-      });
-    });
-    sugg.classList.toggle('on', any);
-  }
+  // Convertir el objeto MARCAS en el formato groupado que acepta makeCustomSelect
+  const marcaItems = Object.entries(MARCAS).map(([cat, brands]) => ({
+    group: cat === 'Otra marca' ? 'Otra' : `Marcas ${cat}`,
+    options: brands
+  }));
 
-  // Siempre mostrar menú al hacer focus o click (permite re-seleccionar)
-  // Usamos flag para evitar que blur cierre el panel antes de que mousedown registre la selección
-  let brandMouseDown = false;
-  sugg.addEventListener('mousedown', () => { brandMouseDown = true; });
-  sugg.addEventListener('mouseup',   () => { brandMouseDown = false; });
-
-  input.addEventListener('focus', () => buildSugg(input.value));
-  input.addEventListener('click', () => buildSugg(input.value));
-  input.addEventListener('input', () => { buildSugg(input.value); checkValidity(); });
-  input.addEventListener('blur', () => {
-    if (brandMouseDown) return; // No cerrar si el usuario está haciendo clic en una opción
-    setTimeout(() => sugg.classList.remove('on'), 180);
+  makeCustomSelect({
+    btnId:     'btn-marca',
+    hiddenId:  'val-marca',
+    items:     marcaItems,
+    searchable: true,
+    onChange: (val) => {
+      const esOtra = val === 'Otra marca';
+      otroWrap.style.display = esOtra ? 'block' : 'none';
+      otroInput.required     = esOtra;
+      if (!esOtra) otroInput.value = '';
+      checkValidity();
+    }
   });
+
   otroInput.addEventListener('input', checkValidity);
-  document.addEventListener('click', e => { if (!e.target.closest('.brand-wrap')) sugg.classList.remove('on'); });
 }
 
 /* ════════════════════════════════════════════════════
@@ -1137,8 +1118,8 @@ function checkValidity() {
   if (fileOk) filled++; else allOk = false;
   document.getElementById('file-reqnote').style.display = fileOk ? 'none' : 'block';
 
-  // Marca — si es "Otra marca" requiere especificar
-  const marcaVal = document.getElementById('f-marca').value;
+  // Marca — val-marca es el hidden del custom select; si es "Otra marca" requiere especificar
+  const marcaVal = document.getElementById('val-marca').value;
   if (marcaVal === 'Otra marca') {
     if (!document.getElementById('f-marca-otro').value.trim()) allOk = false;
   } else if (!marcaVal.trim()) {
@@ -1308,6 +1289,7 @@ function resetForm() {
   resetBtn('btn-tipo',    'Selecciona...');
   resetBtn('btn-anio',    'Selecciona año...');
   resetBtn('btn-colonia', 'Selecciona tu colonia...');
+  resetBtn('btn-marca',   'Selecciona una marca...');
 
   document.querySelectorAll('input[type=hidden][id^="val-"]').forEach(el => el.value = '');
   document.getElementById('val-lada').value = '+52';
