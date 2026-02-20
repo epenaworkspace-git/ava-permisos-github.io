@@ -7,12 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-<!--
-  reCAPTCHA v3 — Site Key: 6Lc9zGUsAAAAAG2K5TAav3VrS9obGfFqXO5cnOkV
-  El token se genera en el frontend y se envía junto con el formulario.
-  La verificación del score se realiza en el servidor (FormSubmit lo recibe).
-  Tokens expiran en 2 minutos — se ejecuta justo antes de enviar el form.
--->
 <script src="https://www.google.com/recaptcha/api.js?render=6Lc9zGUsAAAAAG2K5TAav3VrS9obGfFqXO5cnOkV" async defer></script>
 
 <style>
@@ -23,91 +17,121 @@
   --gray-l:#F4F6FA; --border:#D8E0F0;
   --ok:#10B981; --warn:#F59E0B; --err:#EF4444;
   --r:12px; --sh:0 4px 24px rgba(10,31,68,.10); --sh2:0 8px 40px rgba(10,31,68,.18);
+  --bg-page:#EEF2FB; --card-bg:#fff; --input-bg:#fff; --input-color:#333;
+  --label-color:#0A1F44; --helper-color:#6B7280; --hd-text:#fff;
 }
-body{font-family:'DM Sans',sans-serif;background:#EEF2FB;color:var(--dark);min-height:100vh}
+
+/* ===================== DARK MODE — VARIABLES GLOBALES ===================== */
+body.dark-mode {
+  --navy:      #7aa2f7;
+  --blue:      #4d8aff;
+  --blue-l:    #6ba3ff;
+  --white:     #e8edf8;
+  --dark:      #c9d1e0;
+  --gray:      #7a8fb0;
+  --gray-l:    #1a2540;
+  --border:    #2a3a5c;
+  --bg-page:   #0c1525;
+  --card-bg:   rgba(17,28,50,0.97);
+  --input-bg:  #162040;
+  --input-color:#d0d8ec;
+  --label-color:#7a8fb0;
+  --helper-color:#4a5878;
+  --hd-text:   #e8edf8;
+  background:  #0c1525;
+}
+
+body{font-family:'DM Sans',sans-serif;background:var(--bg-page);color:var(--dark);min-height:100vh;
+  transition:background-color 0.3s ease, color 0.3s ease;}
 
 /* ── HEADER ── */
-header{background:var(--navy);padding:28px 20px 24px;text-align:center;position:relative;overflow:hidden}
+header{background:var(--navy);padding:28px 20px 24px;text-align:center;position:relative;overflow:hidden;
+  transition:background 0.3s ease;}
 header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(22,93,255,.35) 0%,transparent 70%)}
+body.dark-mode header{background:#07111f;}
 .logo{font-family:'Outfit',sans-serif;font-size:42px;font-weight:700;color:#fff;letter-spacing:-1px;position:relative}
-.logo span{color:var(--blue)}
+.logo span{color:#4d8aff;}
 .subtitle{font-family:'Outfit',sans-serif;font-size:11px;font-weight:500;letter-spacing:4px;color:rgba(255,255,255,.65);text-transform:uppercase;margin-top:4px;position:relative}
 
 /* ── LAYOUT ── */
 main{max-width:780px;margin:32px auto 80px;padding:0 16px}
-.progress-wrap{background:#fff;border-radius:14px;box-shadow:var(--sh);padding:16px 24px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
-.prog-bg{flex:1;background:#E5E9F5;border-radius:999px;height:8px;overflow:hidden}
-.prog-fill{height:100%;border-radius:999px;background:var(--blue);transition:width .4s,background .3s}
-.prog-label{font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap}
-.card{background:#fff;border-radius:18px;box-shadow:var(--sh);margin-bottom:20px;overflow:hidden}
-.card-hd{background:var(--navy);padding:14px 24px;display:flex;align-items:center;gap:10px}
+.card{background:var(--card-bg);border-radius:18px;box-shadow:var(--sh);margin-bottom:20px;overflow:hidden;
+  transition:background 0.3s ease, box-shadow 0.3s ease;}
+body.dark-mode .card{box-shadow:0 8px 40px rgba(0,0,0,0.35);}
+.card-hd{background:var(--navy);padding:14px 24px;display:flex;align-items:center;gap:10px;transition:background 0.3s ease;}
+body.dark-mode .card-hd{background:#07111f;}
 .card-hd-ico{width:32px;height:32px;background:rgba(22,93,255,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.card-hd h2{font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#fff}
+.card-hd h2{font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--hd-text);transition:color 0.3s ease;}
 .card-bd{padding:28px 24px;display:flex;flex-direction:column;gap:18px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 @media(max-width:580px){.grid-2{grid-template-columns:1fr}}
 
 /* ── FIELD ── */
 .field{display:flex;flex-direction:column;gap:6px}
-.field label{font-size:12px;font-weight:600;color:var(--navy);letter-spacing:.5px;text-transform:uppercase}
+.field label{font-size:12px;font-weight:600;color:var(--label-color);letter-spacing:.5px;text-transform:uppercase;transition:color 0.3s ease;}
 .req{color:var(--blue);margin-left:2px}
-.helper{font-size:11px;color:var(--gray);margin-top:2px;line-height:1.5}
+.helper{font-size:11px;color:var(--helper-color);margin-top:2px;line-height:1.5;transition:color 0.3s ease;}
 .ferr{font-size:11px;color:var(--err);font-weight:500;margin-top:2px;display:none}
 .ferr.on{display:block}
 
 /* ── INPUTS ── */
 input[type=text],input[type=email],input[type=date]{
   width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r);
-  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--dark);background:#fff;
-  outline:none;transition:border-color .2s,box-shadow .2s;appearance:none;-webkit-appearance:none
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--input-color);background:var(--input-bg);
+  outline:none;transition:border-color .2s,box-shadow .2s,background .3s,color .3s;appearance:none;-webkit-appearance:none
 }
 input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(22,93,255,.10)}
+body.dark-mode input:focus{box-shadow:0 0 0 3px rgba(77,138,255,0.15);}
 input.vi{border-color:var(--err)!important}
 input.vok{border-color:var(--ok)!important}
+input::placeholder{color:var(--helper-color);}
+body.dark-mode input[readonly]{background:#1a2540!important;color:#7a8fb0;}
 
-/* ── CUSTOM SELECT (panel viewport-aware) ── */
-/* todos los selects del formulario usan este sistema */
+/* ── CUSTOM SELECT ── */
 .csel{position:relative}
 .csel-btn{
   width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
   padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r);
-  background:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;
-  color:var(--dark);user-select:none;transition:border-color .2s,box-shadow .2s;text-align:left
+  background:var(--input-bg);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;
+  color:var(--input-color);user-select:none;transition:border-color .2s,box-shadow .2s,background .3s,color .3s;text-align:left
 }
 .csel-btn:hover,.csel-btn.open{border-color:var(--blue);box-shadow:0 0 0 3px rgba(22,93,255,.10)}
-.csel-ph{color:#9ca3af}
-.csel-val{color:var(--dark)}
+.csel-ph{color:var(--helper-color);}
+.csel-val{color:var(--input-color);}
 .csel-arr{flex-shrink:0;transition:transform .2s}
 .csel-btn.open .csel-arr{transform:rotate(180deg)}
-/* Panels append to body — fixed & viewport-aware */
 .csel-veil{display:none;position:fixed;inset:0;z-index:900}
 .csel-veil.on{display:block}
 .csel-panel{
   display:none;position:fixed;z-index:901;
-  background:#fff;border:1.5px solid var(--border);border-radius:var(--r);
-  box-shadow:var(--sh2);overflow:hidden;flex-direction:column
+  background:var(--card-bg);border:1.5px solid var(--border);border-radius:var(--r);
+  box-shadow:var(--sh2);overflow:hidden;flex-direction:column;
+  transition:background 0.2s, border-color 0.2s;
 }
+body.dark-mode .csel-panel{box-shadow:0 8px 40px rgba(0,0,0,0.5);}
 .csel-panel.on{display:flex}
-.csel-srchwrap{padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0;background:#fff}
-.csel-srchwrap input{width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+.csel-srchwrap{padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--card-bg);transition:background 0.3s ease,border-color 0.3s ease;}
+.csel-srchwrap input{width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:var(--input-bg);color:var(--input-color);transition:background .3s,color .3s,border-color .2s;}
 .csel-srchwrap input:focus{border-color:var(--blue)}
 .csel-scroll{overflow-y:auto;flex:1}
-.csel-grp{padding:7px 14px 3px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);background:var(--gray-l);position:sticky;top:0;z-index:1}
-.csel-opt{padding:11px 16px;cursor:pointer;font-size:14px;color:var(--dark);transition:background .15s;border-bottom:1px solid rgba(216,224,240,.35)}
+.csel-grp{padding:7px 14px 3px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);background:var(--gray-l);position:sticky;top:0;z-index:1;transition:background .3s,color .3s;}
+.csel-opt{padding:11px 16px;cursor:pointer;font-size:14px;color:var(--dark);transition:background .15s,color .15s;border-bottom:1px solid rgba(216,224,240,.35)}
 .csel-opt:last-child{border-bottom:none}
 .csel-opt:hover{background:rgba(22,93,255,.07)}
+body.dark-mode .csel-opt:hover{background:rgba(77,138,255,0.1);}
 .csel-opt.sel{color:var(--blue);font-weight:600;background:rgba(22,93,255,.05)}
+body.dark-mode .csel-opt.sel{background:rgba(77,138,255,0.08);}
 
 /* ── PHONE ── */
 .phone-row{display:flex;gap:8px}
 .lada-wrap{flex-shrink:0}
 .lada-btn{
   display:flex;align-items:center;gap:6px;padding:11px 12px;
-  border:1.5px solid var(--border);border-radius:var(--r);background:#fff;
-  cursor:pointer;white-space:nowrap;min-width:118px;user-select:none;transition:border-color .2s
+  border:1.5px solid var(--border);border-radius:var(--r);background:var(--input-bg);
+  cursor:pointer;white-space:nowrap;min-width:118px;user-select:none;transition:border-color .2s,background .3s;
 }
 .lada-btn:hover,.lada-btn.open{border-color:var(--blue)}
-.lada-code{font-weight:600;font-size:13px;color:var(--navy)}
+.lada-code{font-weight:600;font-size:13px;color:var(--navy);transition:color .3s;}
 
 /* ── CP ── */
 .cp-row{position:relative}
@@ -119,38 +143,43 @@ input.vok{border-color:var(--ok)!important}
 .brand-wrap{position:relative}
 .brand-sugg{
   position:absolute;top:calc(100% + 2px);left:0;right:0;z-index:300;
-  background:#fff;border:1.5px solid var(--border);border-radius:var(--r);
+  background:var(--card-bg);border:1.5px solid var(--border);border-radius:var(--r);
   box-shadow:var(--sh2);max-height:250px;overflow-y:auto;display:none
 }
 .brand-sugg.on{display:block}
 .brand-grp{padding:6px 12px 3px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);background:var(--gray-l);position:sticky;top:0}
-.brand-opt{padding:10px 16px;cursor:pointer;font-size:13px;transition:background .15s}
+.brand-opt{padding:10px 16px;cursor:pointer;font-size:13px;transition:background .15s;color:var(--dark);}
 .brand-opt:hover{background:rgba(22,93,255,.07)}
 
 /* ── FILE UPLOAD ── */
 .drop-zone{border:2px dashed var(--border);border-radius:var(--r);padding:22px 20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative}
 .drop-zone:hover,.drop-zone.drag{border-color:var(--blue);background:rgba(22,93,255,.03)}
+body.dark-mode .drop-zone:hover, body.dark-mode .drop-zone.drag{background:rgba(77,138,255,0.05);}
 .drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .drop-icon{font-size:30px;margin-bottom:6px}
 .drop-zone p{font-size:13px;color:var(--gray);line-height:1.7}
-.docs-box{background:rgba(22,93,255,.04);border:1.5px solid rgba(22,93,255,.15);border-radius:10px;padding:14px 16px;font-size:12px;line-height:1.8}
+.docs-box{background:rgba(22,93,255,.04);border:1.5px solid rgba(22,93,255,.15);border-radius:10px;padding:14px 16px;font-size:12px;line-height:1.8;transition:background .3s,border-color .3s;}
+body.dark-mode .docs-box{background:rgba(77,138,255,0.06);border-color:rgba(77,138,255,0.2);}
 .docs-box .db-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--navy);display:block;margin-bottom:8px}
 .legible-ex{margin-top:10px;display:flex;gap:10px}
 .lex{flex:1;border-radius:8px;padding:9px 11px;font-size:11px;line-height:1.6}
 .lex.ok{background:#e8faf4;border:1px solid #10B981;color:#065f46}
 .lex.bad{background:#fef2f2;border:1px solid #EF4444;color:#991b1b}
+body.dark-mode .lex.ok{background:#0a2a1e;color:#6ee7b7;}
+body.dark-mode .lex.bad{background:#2a0a0a;color:#fca5a5;}
 .lex .lex-label{font-weight:700;font-size:10px;letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:3px}
 .file-reqnote{font-size:11px;color:var(--err);font-weight:600;margin-top:6px;display:none}
 .stor-wrap{margin-top:14px;display:none}
 .stor-info{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:6px}
 .stor-bg{background:#E5E9F5;border-radius:999px;height:8px;overflow:hidden}
+body.dark-mode .stor-bg{background:#1e2d45;}
 .stor-fill{height:100%;border-radius:999px;transition:width .4s,background .4s}
 .stor-status{font-size:11px;margin-top:5px;display:flex;align-items:center;gap:5px}
 .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .file-list{margin-top:10px;display:flex;flex-direction:column;gap:6px}
-.fitem{display:flex;align-items:center;gap:10px;background:var(--gray-l);border-radius:8px;padding:9px 12px;font-size:13px}
+.fitem{display:flex;align-items:center;gap:10px;background:var(--gray-l);border-radius:8px;padding:9px 12px;font-size:13px;transition:background .3s;}
 .fitem-ico{font-size:18px}
-.fitem-name{flex:1;color:var(--navy);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fitem-name{flex:1;color:var(--navy);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color .3s;}
 .fitem-size{color:var(--gray);font-size:12px;flex-shrink:0}
 .fitem-del{background:none;border:none;cursor:pointer;color:var(--err);font-size:20px;padding:0 2px;line-height:1;flex-shrink:0;transition:opacity .2s}
 .fitem-del:hover{opacity:.7}
@@ -164,16 +193,18 @@ input.vok{border-color:var(--ok)!important}
 }
 .decl-box:hover{border-color:var(--blue)}
 .decl-box.checked{border-color:var(--ok);background:linear-gradient(135deg,rgba(16,185,129,.04),rgba(16,185,129,.08))}
+body.dark-mode .decl-box{background:rgba(77,138,255,0.04);border-color:rgba(77,138,255,0.2);}
+body.dark-mode .decl-box.checked{background:rgba(16,185,129,0.07);}
 .decl-chk{
   width:22px;height:22px;flex-shrink:0;border:2px solid var(--border);border-radius:6px;
-  background:#fff;display:flex;align-items:center;justify-content:center;margin-top:2px;
+  background:var(--input-bg);display:flex;align-items:center;justify-content:center;margin-top:2px;
   transition:border-color .2s,background .2s;pointer-events:none
 }
 .decl-box.checked .decl-chk{border-color:var(--ok);background:var(--ok)}
 .decl-mark{display:none;color:#fff;font-size:14px;font-weight:700;line-height:1}
 .decl-box.checked .decl-mark{display:block}
-.decl-text{font-size:12px;line-height:1.75;color:var(--dark)}
-.decl-text strong{color:var(--navy)}
+.decl-text{font-size:12px;line-height:1.75;color:var(--dark);transition:color .3s;}
+.decl-text strong{color:var(--navy);transition:color .3s;}
 .decl-text em{font-style:normal;color:var(--blue);font-weight:600}
 .decl-reqnote{font-size:11px;color:var(--err);font-weight:600;margin-top:6px;display:none}
 
@@ -198,9 +229,246 @@ input.vok{border-color:var(--ok)!important}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+
+/* ===================== THEME TOGGLE BUTTON ===================== */
+.theme-toggle-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2000;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #e8ecf4, #d0d6e8);
+  box-shadow:
+    0 6px 20px rgba(0,0,0,0.18),
+    inset 0 -2px 4px rgba(0,0,0,0.15),
+    inset 0 2px 4px rgba(255,255,255,0.9);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  animation: subtlePulse 3s infinite ease-in-out;
+}
+.theme-toggle-btn::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 65%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.theme-toggle-btn:hover::before { opacity: 1; }
+.theme-toggle-btn:hover {
+  animation: none;
+  transform: scale(1.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25),
+    inset 0 -2px 4px rgba(0,0,0,0.15),
+    inset 0 3px 6px rgba(255,255,255,1);
+}
+.theme-toggle-btn:active { transform: scale(0.94); }
+
+@keyframes subtlePulse {
+  0%,100% { transform: scale(1); }
+  50%      { transform: scale(1.03); }
+}
+
+.toggle-icon-wrap {
+  position: relative;
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+.theme-toggle-btn:hover .toggle-icon-wrap { transform: rotate(20deg); }
+
+.icon-sun, .icon-moon {
+  position: absolute;
+  width: 28px; height: 28px;
+  transition: all 0.45s cubic-bezier(0.68,-0.55,0.265,1.55);
+}
+.icon-sun {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  filter: drop-shadow(0 0 4px rgba(255,215,0,0.6));
+}
+.icon-moon {
+  opacity: 0;
+  transform: scale(0.4) rotate(-80deg);
+  filter: drop-shadow(0 0 4px rgba(100,120,255,0.6));
+}
+body.dark-mode .icon-sun  { opacity: 0; transform: scale(0.4) rotate(80deg); }
+body.dark-mode .icon-moon { opacity: 1; transform: scale(1) rotate(0deg); }
+body.dark-mode .theme-toggle-btn {
+  background: linear-gradient(145deg, #1e2d50, #0f1d38);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4),
+    0 0 15px rgba(65,105,225,0.3),
+    inset 0 -2px 4px rgba(0,0,0,0.4),
+    inset 0 2px 4px rgba(255,255,255,0.06);
+}
+
+@media (max-width: 640px) {
+  .theme-toggle-btn { top: 14px; right: 14px; width: 44px; height: 44px; }
+  .icon-sun, .icon-moon { width: 22px; height: 22px; }
+}
+
+/* ===================== FLOATING PROGRESS BAR ===================== */
+.form-progress-wrap {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1500;
+  display: none;
+  width: calc(100% - 200px);
+  max-width: 720px;
+  min-width: 280px;
+  pointer-events: none;
+}
+.form-progress-wrap.visible { display: block; }
+
+.form-progress-pill {
+  background: #ffffff;
+  border-radius: 60px;
+  padding: 10px 20px 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow:
+    0 4px 24px rgba(10,31,68,0.14),
+    0 1px 4px rgba(10,31,68,0.08);
+  border: 1px solid rgba(10,31,68,0.07);
+}
+
+.form-progress-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #E8ECF4;
+  border-radius: 99px;
+  overflow: hidden;
+  position: relative;
+}
+
+.form-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #165DFF 0%, #3a7fff 100%);
+  border-radius: 99px;
+  width: 0%;
+  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.form-progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -60px;
+  width: 50px; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+  animation: barShine 2.2s ease-in-out infinite;
+}
+@keyframes barShine {
+  0%   { left: -60px; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: calc(100% + 20px); opacity: 0; }
+}
+
+.form-progress-text {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #6B7A99;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.1px;
+  min-width: 130px;
+  text-align: right;
+}
+.form-progress-text strong {
+  color: #165DFF;
+  font-weight: 700;
+}
+
+body.dark-mode .form-progress-pill {
+  background: #1a2645;
+  border-color: rgba(255,255,255,0.12);
+  box-shadow:
+    0 4px 28px rgba(0,0,0,0.55),
+    0 1px 4px rgba(0,0,0,0.35);
+}
+body.dark-mode .form-progress-bar-track { background: #263558; }
+body.dark-mode .form-progress-bar-fill {
+  background: linear-gradient(90deg, #4d8aff 0%, #78b0ff 100%);
+}
+body.dark-mode .form-progress-text {
+  color: #c8d6f0;
+  font-weight: 600;
+}
+body.dark-mode .form-progress-text strong {
+  color: #78b0ff;
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .form-progress-wrap { width: calc(100% - 24px); bottom: 16px; }
+  .form-progress-pill { padding: 8px 14px 8px 12px; gap: 10px; }
+  .form-progress-text { font-size: 11.5px; min-width: 110px; }
+}
 </style>
 </head>
 <body>
+
+<!-- ===== BOTÓN MODO CLARO / OSCURO ===== -->
+<button class="theme-toggle-btn" id="themeToggleBtn"
+        aria-label="Cambiar tema claro/oscuro" title="Cambiar tema">
+  <div class="toggle-icon-wrap">
+    <!-- Sol (visible en modo claro) -->
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="4.5" fill="#FFD700" stroke="#FFA500" stroke-width="1.4"/>
+      <g stroke="#FFD700" stroke-width="2" stroke-linecap="round">
+        <line x1="12" y1="2.5" x2="12" y2="4.5" transform="rotate(0 12 12)">
+          <animate attributeName="opacity" values="1;0.3;1" dur="3s" repeatCount="indefinite"/>
+        </line>
+        <line x1="12" y1="2.5" x2="12" y2="4.5" transform="rotate(45 12 12)">
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/>
+        </line>
+        <line x1="12" y1="2.5" x2="12" y2="4.5" transform="rotate(90 12 12)">
+          <animate attributeName="opacity" values="1;0.3;1" dur="3s" repeatCount="indefinite"/>
+        </line>
+        <line x1="12" y1="2.5" x2="12" y2="4.5" transform="rotate(135 12 12)">
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/>
+        </line>
+        <line x1="12" y1="2.5" x2="12" y2="4.5" transform="rotate(180 12 12)">
+          <animate attributeName="opacity" values="1;0.3;1" dur="3s" repeatCount="indefinite"/>
+        </line>
+        <line x1="12" y1="2.5" x2="12" y2="4.5" transform="rotate(225 12 12)">
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/>
+        </line>
+        <line x1="12" y1="2.5" x2="12" y2="4.5" transform="rotate(270 12 12)">
+          <animate attributeName="opacity" values="1;0.3;1" dur="3s" repeatCount="indefinite"/>
+        </line>
+        <line x1="12" y1="2.5" x2="12" y2="4.5" transform="rotate(315 12 12)">
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/>
+        </line>
+      </g>
+    </svg>
+    <!-- Luna (visible en modo oscuro) -->
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+            fill="#c8d0ff" stroke="#4169E1" stroke-width="1.5"/>
+      <circle cx="15" cy="9" r="1" fill="#fff8c0" opacity="0.85">
+        <animate attributeName="opacity" values="0.85;0.3;0.85" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="17" cy="13" r="0.7" fill="#fff8c0" opacity="0.6">
+        <animate attributeName="opacity" values="0.6;0.2;0.6" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="13" cy="15" r="0.55" fill="#fff8c0" opacity="0.4">
+        <animate attributeName="opacity" values="0.4;0.1;0.4" dur="5s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+  </div>
+</button>
 
 <!-- HEADER -->
 <header>
@@ -210,27 +478,11 @@ input.vok{border-color:var(--ok)!important}
 
 <main>
 
-<!-- Progress -->
-<div class="progress-wrap">
-  <div class="prog-bg"><div class="prog-fill" id="prog" style="width:0%"></div></div>
-  <div class="prog-label" id="prog-lbl">Completa todos los campos</div>
-</div>
-
-<!--
-  FORMSUBMIT AJAX — endpoint correcto: https://formsubmit.co/ajax/{email}
-  • Método: POST con FormData (archivos incluidos)
-  • NO poner Content-Type en headers — el navegador lo pone con boundary correcto
-  • Respuesta JSON: { "success": "true" } o { "error": "..." }
-  • _captcha:false desactiva el reCAPTCHA propio de FormSubmit (usamos el nuestro v3)
-  • Primera vez que se envíe llega un correo de verificación a info@anpai.com.mx
--->
 <form id="ava-form" novalidate>
-  <!-- Campos ocultos de FormSubmit -->
   <input type="hidden" name="_subject"  value="Nueva Solicitud — AVA Permisos Guerrero"/>
   <input type="hidden" name="_template" value="table"/>
-  <input type="hidden" name="_captcha"  value="false"/><!-- Desactivamos el captcha propio; usamos reCAPTCHA v3 -->
+  <input type="hidden" name="_captcha"  value="false"/>
   <input type="text"   name="_honey"    style="display:none" tabindex="-1" autocomplete="off"/>
-  <!-- Token reCAPTCHA v3 — se llena justo antes de enviar -->
   <input type="hidden" name="g-recaptcha-response" id="rc-token"/>
 
   <!-- ════════ DATOS PERSONALES ════════ -->
@@ -261,7 +513,6 @@ input.vok{border-color:var(--ok)!important}
       </div>
 
       <div class="grid-2">
-        <!-- Género — custom select -->
         <div class="field">
           <label>Género<span class="req">*</span></label>
           <div class="csel">
@@ -278,7 +529,6 @@ input.vok{border-color:var(--ok)!important}
         </div>
       </div>
 
-      <!-- CURP -->
       <div class="field">
         <label>CURP<span class="req">*</span></label>
         <input type="text" name="curp" id="f-curp" placeholder="Ej. LOOA800101MMCRNS09" maxlength="18" style="text-transform:uppercase" data-r data-val="curp"/>
@@ -286,7 +536,6 @@ input.vok{border-color:var(--ok)!important}
         <div class="helper">4 letras · 6 dígitos fecha (AAMMDD) · H o M · 2 letras estado · 3 consonantes · 2 dígitos verificadores.</div>
       </div>
 
-      <!-- RFC -->
       <div class="field">
         <label>RFC<span class="req">*</span></label>
         <input type="text" name="rfc" id="f-rfc" placeholder="Ej. XEXX010101000 (persona física)" maxlength="13" style="text-transform:uppercase" data-r data-val="rfc"/>
@@ -294,7 +543,6 @@ input.vok{border-color:var(--ok)!important}
         <div class="helper">Persona física: 4 letras + fecha AAMMDD + 3 alfanuméricos = 13 caracteres. Persona moral: 3 letras + fecha + 3 alfanuméricos = 12 caracteres.</div>
       </div>
 
-      <!-- CP + COPOMEX -->
       <div class="field">
         <label>Código Postal<span class="req">*</span></label>
         <div class="cp-row">
@@ -313,7 +561,6 @@ input.vok{border-color:var(--ok)!important}
             <input type="text" id="cp-municipio" name="municipio" readonly style="background:#f8faff"/>
           </div>
         </div>
-        <!-- Colonia — custom select -->
         <div class="field">
           <label>Colonia<span class="req">*</span></label>
           <div class="csel">
@@ -326,7 +573,6 @@ input.vok{border-color:var(--ok)!important}
         </div>
       </div>
 
-      <!-- Teléfono -->
       <div class="field">
         <label>Teléfono<span class="req">*</span></label>
         <div class="phone-row">
@@ -342,7 +588,6 @@ input.vok{border-color:var(--ok)!important}
         </div>
       </div>
 
-      <!-- Email -->
       <div class="field">
         <label>Correo Electrónico<span class="req">*</span></label>
         <input type="email" name="email" placeholder="correo@ejemplo.com" data-r/>
@@ -356,7 +601,6 @@ input.vok{border-color:var(--ok)!important}
     <div class="card-hd"><div class="card-hd-ico">🚗</div><h2>Datos del Vehículo</h2></div>
     <div class="card-bd">
 
-      <!-- Tipo — custom select -->
       <div class="field">
         <label>Tipo de Vehículo<span class="req">*</span></label>
         <div class="csel">
@@ -368,7 +612,6 @@ input.vok{border-color:var(--ok)!important}
         </div>
       </div>
 
-      <!-- Marca — custom select con buscador (mismo patrón que Género/Tipo/Año) -->
       <div class="field">
         <label>Marca<span class="req">*</span></label>
         <div class="csel">
@@ -389,7 +632,6 @@ input.vok{border-color:var(--ok)!important}
           <label>Versión / Trim<span class="req">*</span></label>
           <input type="text" name="version" placeholder="Ej. Limited, Sport, XLE..." data-r/>
         </div>
-        <!-- Año — custom select con buscador -->
         <div class="field">
           <label>Año Modelo<span class="req">*</span></label>
           <div class="csel">
@@ -421,7 +663,6 @@ input.vok{border-color:var(--ok)!important}
         <div class="helper">Asignada por el fabricante — aparece en la factura o tarjeta de circulación.</div>
       </div>
 
-      <!-- Archivos -->
       <div class="field">
         <label>Adjuntar Documentos<span class="req">*</span></label>
         <div class="drop-zone" id="drop-zone">
@@ -487,10 +728,6 @@ input.vok{border-color:var(--ok)!important}
     <button type="submit" class="btn-submit" id="btn-send" disabled>
       <span>✉️</span> Enviar Solicitud
     </button>
-    <!--
-      reCAPTCHA v3 — branding obligatorio cuando se oculta el badge
-      Ref: https://developers.google.com/recaptcha/docs/faq
-    -->
     <div class="recap-note">
       Protegido por reCAPTCHA — <a href="https://policies.google.com/privacy" target="_blank">Privacidad</a> y <a href="https://policies.google.com/terms" target="_blank">Términos</a> de Google.
     </div>
@@ -499,7 +736,22 @@ input.vok{border-color:var(--ok)!important}
 </form>
 </main>
 
-<!-- WhatsApp (izquierda) — reemplazar NUMERO_WHATSAPP con número real -->
+<!-- ===== BARRA DE PROGRESO FLOTANTE ===== -->
+<div class="form-progress-wrap" id="formProgressWrap">
+  <div class="form-progress-pill">
+    <div class="form-progress-bar-track">
+      <div class="form-progress-bar-fill" id="formProgressFill"></div>
+    </div>
+    <span class="form-progress-text">
+      <strong id="formProgressDone">0</strong>
+      de
+      <span id="formProgressTotal">0</span>
+      campos completados
+    </span>
+  </div>
+</div>
+
+<!-- WhatsApp -->
 <a class="wa-btn" href="https://wa.me/NUMERO_WHATSAPP" target="_blank" title="Contactar por WhatsApp">
   <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 </a>
@@ -511,45 +763,23 @@ input.vok{border-color:var(--ok)!important}
 <script>
 'use strict';
 
-/* ════════════════════════════════════════════════════
-   CONSTANTES Y CONFIGURACIÓN
-════════════════════════════════════════════════════ */
-
-// COPOMEX — token real del cliente
-// Endpoint documentado: GET https://api.copomex.com/query/info_cp/{cp}?token={token}
-// Respuesta: Array de objetos [ { error: false, code_error: 0, error_message: null, response: { cp, asentamiento, municipio, estado, ... } } ]
-// La API también puede devolver el asentamiento como array en modo agrupado — ambos formatos están manejados.
-const COPOMEX_TOKEN = '36da398a-1848-44f3-a952-06c9bfb02cc8';
-
-// FormSubmit — endpoint AJAX correcto: https://formsubmit.co/ajax/{email}
-// PASOS PARA ACTIVAR:
-//   1. La primera vez que se envíe el formulario, FormSubmit enviará un email de verificación a info@anpai.com.mx
-//   2. El destinatario debe hacer clic en el enlace de verificación de ese email
-//   3. A partir de ese momento el endpoint queda activo permanentemente
-// Configuración:
-//   • Método: POST con FormData (multipart, permite adjuntar archivos)
-//   • Headers: SOLO { 'Accept': 'application/json' } — NO fijar Content-Type (el navegador lo gestiona con boundary)
-//   • Respuesta JSON exitosa: { "success": "true" }
-//   • _captcha:false desactiva el reCAPTCHA propio de FormSubmit (usamos nuestro reCAPTCHA v3)
-const FORMSUBMIT_URL = 'https://formsubmit.co/ajax/info@anpai.com.mx';
-
-// reCAPTCHA v3
-// PASOS PARA ACTIVAR:
-//   1. Site Key (pública, usada en el HTML/JS): 6Lc9zGUsAAAAAG2K5TAav3VrS9obGfFqXO5cnOkV  ← ya configurada
-//   2. Secret Key (privada, solo para verificación en backend): se obtiene en console.google.com/recaptcha
-//   3. IMPORTANTE: reCAPTCHA v3 solo genera un token — la verificación del score (ej. ≥ 0.5 = humano)
-//      requiere hacer una llamada server-side a: https://www.google.com/recaptcha/api/siteverify
-//      con POST: secret={SECRET_KEY}&response={TOKEN}
-//   4. FormSubmit recibe el campo g-recaptcha-response pero NO verifica el score automáticamente.
-//      Para verificación completa necesitarías un backend propio o un servicio como Cloudflare Workers.
-//   5. En el contexto actual (formulario estático): el token se genera y envía para registro,
-//      pero la validación del score queda pendiente de implementación backend.
-// El script de reCAPTCHA ya está cargado en el <head> con el site key correcto.
+/* ════════ CONSTANTES ════════ */
+const COPOMEX_TOKEN   = '36da398a-1848-44f3-a952-06c9bfb02cc8';
+const FORMSUBMIT_URL  = 'https://formsubmit.co/ajax/info@anpai.com.mx';
 const RECAPTCHA_SITE_KEY = '6Lc9zGUsAAAAAG2K5TAav3VrS9obGfFqXO5cnOkV';
+const MAX_BYTES = 5 * 1024 * 1024;
+const THEME_STORAGE_KEY = 'ava-permisos-guerrero-theme';
 
-const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+/* ════════ THEME TOGGLE ════════ */
+(function() {
+  try {
+    if (localStorage.getItem(THEME_STORAGE_KEY) === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+  } catch(e) {}
+})();
 
-/* ════════ LADAS por región A→Z ════════ */
+/* ════════ LADAS ════════ */
 const LADAS = [
   { r:'África', c:[
     {f:'🇩🇿',n:'Argelia',d:'+213'},{f:'🇦🇴',n:'Angola',d:'+244'},{f:'🇧🇯',n:'Benín',d:'+229'},
@@ -626,7 +856,6 @@ const LADAS = [
   ]},
 ];
 
-/* ════════ MARCAS A→Z por categoría ════════ */
 const MARCAS = {
   'Chinas':         ['BAIC','BYD','Chery','DFSK','Dongfeng','FAW','Foton','GAC','Geely','Haval','JAC','Jetour','Leapmotor','Maxus','MG','Nio','Ora','Roewe','Saic','Wuling','Xpeng','Zotye'],
   'Coreanas':       ['Genesis','Hyundai','Kia','SsangYong'],
@@ -636,16 +865,10 @@ const MARCAS = {
   'Otra marca':     ['Otra marca'],
 };
 
-/* ════════════════════════════════════════════════════
-   SISTEMA DE PANELES FLOTANTES (viewport-aware)
-   Todos los dropdowns usan position:fixed calculado
-   en tiempo real para nunca quedar recortados.
-════════════════════════════════════════════════════ */
-
+/* ════════ PANEL SYSTEM ════════ */
 let uploadedFiles = [];
 let activePanel = null;
 
-// Velo único compartido por todos los paneles
 const VEIL = document.createElement('div');
 VEIL.className = 'csel-veil';
 document.body.appendChild(VEIL);
@@ -661,7 +884,7 @@ function positionPanel(panel, trigger) {
   const r = trigger.getBoundingClientRect();
   const w = Math.min(Math.max(r.width, 240), window.innerWidth - 24);
   const maxH = Math.min(280, window.innerHeight * 0.52);
-  panel.style.width  = w + 'px';
+  panel.style.width = w + 'px';
   panel.style.maxHeight = maxH + 'px';
   let top  = r.bottom + 4;
   let left = r.left;
@@ -681,12 +904,11 @@ function openPanel(panel, trigger, onOpen) {
   if (onOpen) onOpen();
 }
 
-// Reposiciona al hacer scroll/resize
 window.addEventListener('resize', () => {
   if (activePanel) {
     const t = document.querySelector('.csel-btn.open, .lada-btn.open');
     if (t) positionPanel(activePanel, t);
-    else closeAllPanels(); // si no hay trigger visible, cerrar
+    else closeAllPanels();
   }
 }, true);
 window.addEventListener('scroll', () => {
@@ -696,14 +918,6 @@ window.addEventListener('scroll', () => {
   }
 }, {capture:true, passive:true});
 
-/* ════════ makeCustomSelect — crea un select personalizado ════════
-   params:
-     btnId     — id del botón .csel-btn
-     hiddenId  — id del <input type=hidden>
-     items     — array de strings o [{group, options[]}]
-     searchable — bool
-     onChange  — callback(value)
-*/
 function makeCustomSelect({ btnId, hiddenId, items, searchable = false, onChange }) {
   const btn    = document.getElementById(btnId);
   const hidden = document.getElementById(hiddenId);
@@ -742,6 +956,7 @@ function makeCustomSelect({ btnId, hiddenId, items, searchable = false, onChange
         closeAllPanels();
         if (onChange) onChange(text);
         checkValidity();
+        updateProgressBar(); // keep floating bar in sync
       });
       scroll.appendChild(d);
     }
@@ -771,12 +986,11 @@ function makeCustomSelect({ btnId, hiddenId, items, searchable = false, onChange
   if (srch) srch.addEventListener('input', () => buildList(srch.value));
 }
 
-/* ════════════════════════════════════════════════════
-   INIT
-════════════════════════════════════════════════════ */
+/* ════════ INIT ════════ */
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('fecha-nac').max = new Date().toISOString().split('T')[0];
 
+  initThemeToggle();
   initSelects();
   initLada();
   initCP();
@@ -784,29 +998,40 @@ document.addEventListener('DOMContentLoaded', () => {
   initFiles();
   initValidation();
   initSubmit();
-  checkValidity();
+
+  // Activa la barra de progreso flotante al cargar
+  showProgressBar('ava-form');
 });
 
-/* ════════════════════════════════════════════════════
-   CUSTOM SELECTS
-════════════════════════════════════════════════════ */
+/* ════════ THEME TOGGLE ════════ */
+function initThemeToggle() {
+  const themeBtn = document.getElementById('themeToggleBtn');
+  if (!themeBtn) return;
+
+  themeBtn.addEventListener('click', function() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, isDark ? 'dark' : 'light');
+    } catch(e) {}
+
+    themeBtn.style.boxShadow = isDark
+      ? '0 0 24px rgba(65,105,225,0.75)'
+      : '0 0 24px rgba(255,215,0,0.75)';
+    setTimeout(() => { themeBtn.style.boxShadow = ''; }, 400);
+  });
+}
+
+/* ════════ CUSTOM SELECTS ════════ */
 function initSelects() {
-  // Género
   makeCustomSelect({ btnId:'btn-genero', hiddenId:'val-genero', items:['Masculino','Femenino'] });
-
-  // Tipo vehículo
   makeCustomSelect({ btnId:'btn-tipo', hiddenId:'val-tipo', items:['Nuevo','Seminuevo'] });
-
-  // Año modelo
   const years = [];
   const cur = new Date().getFullYear();
   for (let y = cur + 1; y >= 1960; y--) years.push(String(y));
   makeCustomSelect({ btnId:'btn-anio', hiddenId:'val-anio', items: years, searchable: true });
 }
 
-/* ════════════════════════════════════════════════════
-   LADA — panel viewport-aware
-════════════════════════════════════════════════════ */
+/* ════════ LADA ════════ */
 function initLada() {
   const ladaBtn  = document.getElementById('lada-btn');
   const flagEl   = document.getElementById('lada-flag');
@@ -854,13 +1079,7 @@ function initLada() {
   build();
 }
 
-/* ════════════════════════════════════════════════════
-   COPOMEX
-   Endpoint documentado: GET /query/info_cp/{cp}?type=simplified&token={token}
-   Respuesta: Array de objetos [ { error, code_error, error_message, response: {
-     cp, asentamiento, tipo_asentamiento, municipio, estado, ciudad, pais
-   } } ]
-════════════════════════════════════════════════════ */
+/* ════════ COPOMEX ════════ */
 function initCP() {
   const cpInput  = document.getElementById('f-cp');
   const spin     = document.getElementById('cp-spin');
@@ -881,56 +1100,29 @@ function initCP() {
   async function fetchCP(cp) {
     spin.style.display = 'flex';
     try {
-      // URL correcta según documentación oficial de COPOMEX v2
-      // https://api.copomex.com/query/info_cp/{cp}?token={token}
-      // Nota: type=simplified es OPCIONAL — omitirlo devuelve el formato estándar con más detalle
       const url = `https://api.copomex.com/query/info_cp/${cp}?token=${COPOMEX_TOKEN}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-
-      // La API devuelve un ARRAY aunque solo haya un resultado
-      // Formato: [ { error: false, code_error: 0, error_message: null, response: { cp, asentamiento, tipo_asentamiento, municipio, estado, ciudad, pais } } ]
       const arr = Array.isArray(data) ? data : [data];
-
-      // Filtrar los que no tienen error
       const valid = arr.filter(item => !item.error && item.response);
       if (!valid.length) { extra.style.display = 'none'; return; }
-
-      // Estado y municipio del primer resultado
       const r0 = valid[0].response;
       document.getElementById('cp-estado').value    = r0.estado    || '';
       document.getElementById('cp-municipio').value  = r0.municipio || r0.ciudad || '';
-
-      // Colonias únicas A→Z — el campo puede llamarse "asentamiento" o "response" contener array
       let colonias = [];
       if (typeof r0.asentamiento === 'string') {
-        // Modo simplificado: un asentamiento por objeto
         colonias = [...new Set(valid.map(item => item.response.asentamiento || '').filter(Boolean))].sort();
       } else if (Array.isArray(r0.asentamiento)) {
-        // Modo agrupado: el asentamiento es un array dentro del primer response
         colonias = [...new Set(r0.asentamiento.filter(Boolean))].sort();
       } else {
-        // Fallback: extraer cualquier string de asentamiento encontrado
         colonias = [...new Set(valid.map(item => item.response.asentamiento || item.response.colonia || '').filter(Boolean))].sort();
       }
-
-      // Resetear colonia
       coloniaVal.value = '';
       coloniaBtn.innerHTML = `<span class="csel-ph">Selecciona tu colonia...</span><svg class="csel-arr" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="#0A1F44" stroke-width="2" stroke-linecap="round"/></svg>`;
-
-      // Destruir panel anterior de colonia para evitar duplicados de listeners
       const oldPanel = document.getElementById('panel-btn-colonia');
       if (oldPanel) oldPanel.remove();
-
-      // Registrar colonia como select personalizado con las colonias obtenidas
-      makeCustomSelect({
-        btnId:    'btn-colonia',
-        hiddenId: 'val-colonia',
-        items:    colonias,
-        searchable: colonias.length > 8,
-      });
-
+      makeCustomSelect({ btnId:'btn-colonia', hiddenId:'val-colonia', items:colonias, searchable: colonias.length > 8 });
       extra.style.display = 'flex';
     } catch(err) {
       console.error('COPOMEX error:', err);
@@ -938,48 +1130,34 @@ function initCP() {
     } finally {
       spin.style.display = 'none';
       checkValidity();
+      updateProgressBar();
     }
   }
 }
 
-/* ════════════════════════════════════════════════════
-   BRAND — reconstruido con makeCustomSelect + buscador
-   Usa el mismo sistema de paneles flotantes que Género,
-   Tipo y Año: botón → panel fixed en body → velo.
-   Esto garantiza que se pueda abrir cuantas veces
-   se quiera sin ningún problema de blur o foco.
-════════════════════════════════════════════════════ */
+/* ════════ BRAND ════════ */
 function initBrand() {
   const otroWrap  = document.getElementById('marca-otro-wrap');
   const otroInput = document.getElementById('f-marca-otro');
-  const hiddenVal = document.getElementById('val-marca');
-
-  // Convertir el objeto MARCAS en el formato groupado que acepta makeCustomSelect
   const marcaItems = Object.entries(MARCAS).map(([cat, brands]) => ({
     group: cat === 'Otra marca' ? 'Otra' : `Marcas ${cat}`,
     options: brands
   }));
-
   makeCustomSelect({
-    btnId:     'btn-marca',
-    hiddenId:  'val-marca',
-    items:     marcaItems,
-    searchable: true,
+    btnId:'btn-marca', hiddenId:'val-marca', items:marcaItems, searchable:true,
     onChange: (val) => {
       const esOtra = val === 'Otra marca';
       otroWrap.style.display = esOtra ? 'block' : 'none';
-      otroInput.required     = esOtra;
+      otroInput.required = esOtra;
       if (!esOtra) otroInput.value = '';
       checkValidity();
+      updateProgressBar();
     }
   });
-
-  otroInput.addEventListener('input', checkValidity);
+  otroInput.addEventListener('input', () => { checkValidity(); updateProgressBar(); });
 }
 
-/* ════════════════════════════════════════════════════
-   FILE UPLOAD
-════════════════════════════════════════════════════ */
+/* ════════ FILES ════════ */
 function initFiles() {
   const zone = document.getElementById('drop-zone');
   const fi   = document.getElementById('file-input');
@@ -998,12 +1176,12 @@ function addFiles(files) {
     }
     uploadedFiles.push({ file: f, id: Date.now() + Math.random() });
   }
-  renderFiles(); updateStorage(); checkValidity();
+  renderFiles(); updateStorage(); checkValidity(); updateProgressBar();
 }
 
 window.removeFile = function(id) {
   uploadedFiles = uploadedFiles.filter(x => x.id !== id);
-  renderFiles(); updateStorage(); checkValidity();
+  renderFiles(); updateStorage(); checkValidity(); updateProgressBar();
 };
 
 function renderFiles() {
@@ -1042,217 +1220,225 @@ function fmtB(b) {
   return b+' B';
 }
 
-/* ════════════════════════════════════════════════════
-   VALIDACIÓN — CURP, RFC, progreso, botón bloqueado
-════════════════════════════════════════════════════ */
-// Regex oficiales CURP y RFC México
+/* ════════ VALIDACIÓN ════════ */
 const CURP_RE = /^[A-Z]{4}[0-9]{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]{2}$/;
-const RFC_PF  = /^[A-ZÑ&]{4}[0-9]{6}[A-Z0-9]{3}$/;  // Persona física — 13 chars
-const RFC_PM  = /^[A-ZÑ&]{3}[0-9]{6}[A-Z0-9]{3}$/;  // Persona moral  — 12 chars
+const RFC_PF  = /^[A-ZÑ&]{4}[0-9]{6}[A-Z0-9]{3}$/;
+const RFC_PM  = /^[A-ZÑ&]{3}[0-9]{6}[A-Z0-9]{3}$/;
 
 function initValidation() {
   const curp = document.getElementById('f-curp');
   const rfc  = document.getElementById('f-rfc');
-
   curp.addEventListener('input', () => {
     curp.value = curp.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
     const ok = CURP_RE.test(curp.value);
     curp.classList.toggle('vi',  curp.value.length > 0 && !ok);
     curp.classList.toggle('vok', ok);
     document.getElementById('err-curp').classList.toggle('on', curp.value.length > 0 && !ok);
-    checkValidity();
+    checkValidity(); updateProgressBar();
   });
-
   rfc.addEventListener('input', () => {
     rfc.value = rfc.value.toUpperCase().replace(/[^A-ZÑ&0-9]/g, '');
     const ok = RFC_PF.test(rfc.value) || RFC_PM.test(rfc.value);
     rfc.classList.toggle('vi',  rfc.value.length > 0 && !ok);
     rfc.classList.toggle('vok', ok);
     document.getElementById('err-rfc').classList.toggle('on', rfc.value.length > 0 && !ok);
-    checkValidity();
+    checkValidity(); updateProgressBar();
   });
-
-  // Adjuntar listeners a todos los campos con data-r
   document.querySelectorAll('[data-r]').forEach(el => {
-    el.addEventListener('input', checkValidity);
-    el.addEventListener('change', checkValidity);
+    el.addEventListener('input', () => { checkValidity(); updateProgressBar(); });
+    el.addEventListener('change', () => { checkValidity(); updateProgressBar(); });
   });
 }
 
 function checkValidity() {
   let total = 0, filled = 0, allOk = true;
-
-  // Campos de texto/email/date con data-r (excluir hidden inputs — los manejamos abajo)
   document.querySelectorAll('[data-r]').forEach(el => {
-    if (el.type === 'hidden') return; // se cuentan aparte
-    if (!el.offsetParent) return;     // skip si oculto por CSS
+    if (el.type === 'hidden') return;
+    if (!el.offsetParent) return;
     total++;
     if (el.value.trim()) filled++; else allOk = false;
   });
-
-  // Hidden inputs de custom selects (Género, Tipo, Año, Lada no es required)
   ['val-genero','val-tipo','val-anio'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     total++;
     if (el.value.trim()) filled++; else allOk = false;
   });
-
-  // Colonia — solo requerida si el bloque CP está visible
   if (document.getElementById('cp-extra').style.display !== 'none') {
     total++;
     const col = document.getElementById('val-colonia');
     if (col && col.value) filled++; else allOk = false;
   }
-
-  // CURP — formato válido
   if (!CURP_RE.test(document.getElementById('f-curp').value)) allOk = false;
-
-  // RFC — formato válido
   const rfcVal = document.getElementById('f-rfc').value;
   if (!RFC_PF.test(rfcVal) && !RFC_PM.test(rfcVal)) allOk = false;
-
-  // Archivos obligatorios
   total++;
   const fileOk = uploadedFiles.length > 0;
   if (fileOk) filled++; else allOk = false;
   document.getElementById('file-reqnote').style.display = fileOk ? 'none' : 'block';
-
-  // Marca — val-marca es el hidden del custom select; si es "Otra marca" requiere especificar
   const marcaVal = document.getElementById('val-marca').value;
   if (marcaVal === 'Otra marca') {
     if (!document.getElementById('f-marca-otro').value.trim()) allOk = false;
-  } else if (!marcaVal.trim()) {
-    allOk = false;
-  }
-
-  // Declaración
+  } else if (!marcaVal.trim()) { allOk = false; }
   total++;
   const declOk = document.getElementById('decl-box').classList.contains('checked');
   if (declOk) filled++; else allOk = false;
   document.getElementById('decl-reqnote').style.display = declOk ? 'none' : 'block';
 
-  // Barra de progreso
-  const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
-  const fill = document.getElementById('prog');
-  fill.style.width      = pct + '%';
-  fill.style.background = pct === 100 ? 'var(--ok)' : 'var(--blue)';
-  document.getElementById('prog-lbl').textContent =
-    pct === 100 ? '✅ ¡Todo completo! Listo para enviar.' : `${filled} de ${total} campos completados`;
-
   document.getElementById('btn-send').disabled = !allOk;
 }
 
-/* ════════ DECLARACIÓN ════════ */
 function toggleDecl() {
   document.getElementById('decl-box').classList.toggle('checked');
   checkValidity();
+  updateProgressBar();
 }
 
-/* ════════════════════════════════════════════════════
-   ENVÍO DEL FORMULARIO
-   
-   FormSubmit AJAX — configuración correcta:
-   • URL: https://formsubmit.co/ajax/info@anpai.com.mx
-   • Método: POST
-   • Body: FormData (con archivos adjuntos)
-   • Headers: SOLO { 'Accept': 'application/json' }
-     → NO poner Content-Type; el navegador lo gestiona con boundary
-   • Respuesta esperada: { "success": "true" }
-   • NOTA: La primera vez se enviará email de verificación a info@anpai.com.mx
-     → Hay que confirmar el correo para activar el endpoint
-   
-   reCAPTCHA v3:
-   • Se ejecuta grecaptcha.execute() justo antes de enviar (token válido 2 min)
-   • El token va en el campo g-recaptcha-response dentro del FormData
-   • Para verificar el score se necesita backend con Secret Key (fuera del scope del formulario estático)
-════════════════════════════════════════════════════ */
+/* ════════ BARRA FLOTANTE DE PROGRESO ════════ */
+
+/**
+ * Calcula los campos requeridos del formulario AVA.
+ * Usa la misma lógica que checkValidity() para mantener consistencia exacta:
+ * - Inputs/selects con [data-r] visibles
+ * - Selects custom (val-genero, val-tipo, val-anio)
+ * - Colonia (si el bloque CP está visible)
+ * - Archivos adjuntos (cuenta como 1 campo)
+ * - Declaración jurada (cuenta como 1 campo)
+ * Excluye: hidden, CURP/RFC inválidos (esos se manejan como validación extra, no como "campo vacío")
+ */
+function getAvaRequiredFields() {
+  const fields = [];
+
+  // Inputs de texto/email/date con data-r visibles
+  document.querySelectorAll('[data-r]').forEach(el => {
+    if (el.type === 'hidden') return;
+    if (!el.offsetParent) return;
+    fields.push({
+      type: 'standard',
+      isFilled: () => el.value.trim().length > 0
+    });
+  });
+
+  // Custom selects independientes
+  ['val-genero', 'val-tipo', 'val-anio'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    fields.push({
+      type: 'custom-select',
+      isFilled: () => el.value.trim().length > 0
+    });
+  });
+
+  // Colonia (solo si el bloque CP está visible)
+  if (document.getElementById('cp-extra').style.display !== 'none') {
+    const col = document.getElementById('val-colonia');
+    fields.push({
+      type: 'colonia',
+      isFilled: () => !!(col && col.value.trim())
+    });
+  }
+
+  // Archivos adjuntos
+  fields.push({
+    type: 'files',
+    isFilled: () => uploadedFiles.length > 0
+  });
+
+  // Declaración jurada
+  fields.push({
+    type: 'decl',
+    isFilled: () => document.getElementById('decl-box').classList.contains('checked')
+  });
+
+  return fields;
+}
+
+var progressState = { currentForm: null };
+
+function updateProgressBar() {
+  if (!progressState.currentForm) return;
+
+  const fields = getAvaRequiredFields();
+  const total  = fields.length;
+  const done   = fields.filter(f => f.isFilled()).length;
+  const pct    = total > 0 ? (done / total) * 100 : 0;
+
+  document.getElementById('formProgressFill').style.width = pct + '%';
+  document.getElementById('formProgressDone').textContent  = done;
+  document.getElementById('formProgressTotal').textContent = total;
+}
+
+function attachProgressListeners(formId) {
+  const form = document.getElementById(formId);
+  if (!form) return;
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input',  updateProgressBar);
+    el.addEventListener('change', updateProgressBar);
+  });
+}
+
+function showProgressBar(formId) {
+  progressState.currentForm = formId;
+  document.getElementById('formProgressWrap').classList.add('visible');
+  attachProgressListeners(formId);
+  updateProgressBar();
+}
+
+/* ════════ SUBMIT ════════ */
 function initSubmit() {
   document.getElementById('ava-form').addEventListener('submit', async e => {
     e.preventDefault();
     const btn = document.getElementById('btn-send');
     btn.disabled = true;
     btn.innerHTML = '⏳ Enviando solicitud...';
-
-    // 1. Generar token reCAPTCHA v3 justo antes del submit
     try {
       const token = await new Promise((res, rej) => {
         if (typeof grecaptcha !== 'undefined') {
           grecaptcha.ready(() =>
-            grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit_permiso' })
-              .then(res).catch(rej)
+            grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'submit_permiso' }).then(res).catch(rej)
           );
-        } else {
-          res(''); // Si reCAPTCHA no cargó (ej. bloqueador), continuar sin token
-        }
+        } else { res(''); }
       });
       document.getElementById('rc-token').value = token;
-    } catch(err) {
-      console.warn('reCAPTCHA no disponible:', err);
-    }
+    } catch(err) { console.warn('reCAPTCHA no disponible:', err); }
 
-    // 2. Construir FormData — NUNCA fijar Content-Type manualmente
     const fd = new FormData();
-
-    // Campos especiales de FormSubmit (control fields)
     fd.append('_subject',  'Nueva Solicitud — AVA Permisos Guerrero');
     fd.append('_template', 'table');
-    fd.append('_captcha',  'false'); // Desactivamos reCAPTCHA propio de FormSubmit; usamos v3 nuestro
-
-    // Honeypot — campo anti-spam vacío
+    fd.append('_captcha',  'false');
     fd.append('_honey', '');
-
-    // Token reCAPTCHA v3
     fd.append('g-recaptcha-response', document.getElementById('rc-token').value);
-
-    // Campos del formulario — excluir los campos de control ya añadidos y el file input
-    // También excluimos _honey para no duplicar
     const SKIP_FIELDS = new Set(['_subject','_template','_captcha','_honey','g-recaptcha-response']);
-    const form = document.getElementById('ava-form');
-    new FormData(form).forEach((val, key) => {
-      if (SKIP_FIELDS.has(key)) return; // ya añadidos arriba
+    new FormData(document.getElementById('ava-form')).forEach((val, key) => {
+      if (SKIP_FIELDS.has(key)) return;
       fd.append(key, val);
     });
+    uploadedFiles.forEach(({ file }, i) => { fd.append(`adjunto_${i + 1}`, file, file.name); });
 
-    // Archivos adjuntos reales (gestionados por JS, no por el input nativo)
-    uploadedFiles.forEach(({ file }, i) => {
-      fd.append(`adjunto_${i + 1}`, file, file.name);
-    });
-
-    // 3. Enviar a FormSubmit AJAX
-    // IMPORTANTE: La primera vez que se envíe, FormSubmit enviará un email de verificación
-    // a info@anpai.com.mx. Hasta no confirmar ese email el endpoint no funcionará.
-    // URL correcta para AJAX: https://formsubmit.co/ajax/{email}
     try {
       const res = await fetch(FORMSUBMIT_URL, {
         method: 'POST',
         headers: { 'Accept': 'application/json' },
-        // NO poner 'Content-Type' — el navegador lo pone con boundary correcto para multipart
         body: fd,
       });
-
-      // FormSubmit a veces devuelve HTML si el email no está verificado — manejar ambos casos
       const contentType = res.headers.get('content-type') || '';
       let json = {};
       if (contentType.includes('application/json')) {
         json = await res.json();
       } else {
         const text = await res.text();
-        // Si la respuesta contiene HTML es probable que sea la página de verificación
         if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-          throw new Error('El email info@anpai.com.mx aún no ha sido verificado en FormSubmit. Revisa la bandeja de entrada y confirma el email de activación antes de usar el formulario.');
+          throw new Error('El email info@anpai.com.mx aún no ha sido verificado en FormSubmit.');
         }
         try { json = JSON.parse(text); } catch { json = { success: res.ok }; }
       }
-
       if (res.ok && (json.success === 'true' || json.success === true)) {
-        // ✅ Éxito
         btn.innerHTML = '✅ ¡Solicitud enviada correctamente!';
         btn.style.background = 'var(--ok)';
         btn.style.opacity = '1';
         resetForm();
       } else {
-        throw new Error(json.message || `HTTP ${res.status} — verifica que el correo info@anpai.com.mx esté confirmado en FormSubmit`);
+        throw new Error(json.message || `HTTP ${res.status}`);
       }
     } catch(err) {
       console.error('Error al enviar:', err);
@@ -1279,8 +1465,6 @@ function resetForm() {
   document.getElementById('cp-extra').style.display  = 'none';
   document.getElementById('marca-otro-wrap').style.display = 'none';
   document.getElementById('decl-box').classList.remove('checked');
-
-  // Resetear custom selects (botones)
   const resetBtn = (id, ph) => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = `<span class="csel-ph">${ph}</span><svg class="csel-arr" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="#0A1F44" stroke-width="2" stroke-linecap="round"/></svg>`;
@@ -1290,13 +1474,12 @@ function resetForm() {
   resetBtn('btn-anio',    'Selecciona año...');
   resetBtn('btn-colonia', 'Selecciona tu colonia...');
   resetBtn('btn-marca',   'Selecciona una marca...');
-
   document.querySelectorAll('input[type=hidden][id^="val-"]').forEach(el => el.value = '');
   document.getElementById('val-lada').value = '+52';
   document.getElementById('lada-flag').textContent = '🇲🇽';
   document.getElementById('lada-code').textContent = '+52';
-
   checkValidity();
+  updateProgressBar();
 }
 </script>
 </body>
