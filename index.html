@@ -162,7 +162,7 @@ body.dark-mode .lex.bad{background:#2a0a0a;color:#fca5a5;border-color:#EF4444;}
 .file-over-limit.on{display:block}
 
 /* ══ STORAGE BAR ══ */
-.stor-wrap{margin-top:14px;display:none}
+.stor-wrap{margin-top:14px;display:block}
 .stor-info{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:6px;color:var(--dark);}
 body.dark-mode .stor-info{color:#c8d6f0;}
 .stor-bg{background:#E5E9F5;border-radius:999px;height:8px;overflow:hidden}
@@ -232,7 +232,7 @@ body.dark-mode .sum-group-label-text{color:#6ba3ff;}
 .sum-row{display:flex;align-items:baseline;gap:.5rem;font-size:.8rem;line-height:1.9;}
 .sum-k{color:var(--mid);font-weight:500;min-width:148px;flex-shrink:0;font-size:.77rem;}
 body.dark-mode .sum-k{color:#4a5878;}
-.sum-v{color:#1a1a2e;font-weight:600;font-size:.82rem;word-break:break-word;}
+.sum-v{color:#1a1a2e;font-weight:600;font-size:.82rem;word-break:break-word;text-transform:uppercase;}
 body.dark-mode .sum-v{color:#c8d6f0;}
 .sum-v--empty{color:var(--lt);font-weight:400;font-style:italic;}
 body.dark-mode .sum-v--empty{color:#3a4e70;}
@@ -325,7 +325,7 @@ body.dark-mode .recap-note{color:#7a8fb0;}
 
 /* Botón INICIAR TRÁMITE — posición original: top-left */
 .tramite-float{
-  position:fixed;top:50px;left:50px;
+  position:fixed;top:50px;left:24px;
   background:linear-gradient(135deg,#0A1F44 0%,#1a3a6e 100%);
   color:white;width:58px;height:58px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
@@ -377,15 +377,15 @@ body.dark-mode .tramite-tooltip{background:rgba(26,32,44,0.97);color:#c8d6f0;bor
 body.dark-mode .wa-btn{box-shadow:0 10px 30px rgba(37,211,102,.35),0 0 0 4px #1a202c;}
 
 @media(max-width:768px){
-  .tramite-float{width:58px;height:58px;top:82px;left:12px;}
+  .tramite-float{width:58px;height:58px;top:82px;left:14px;}
   .tramite-icon{width:28px;height:28px;}
   .tramite-tooltip{display:none;}
-  .wa-btn{width:58px;height:58px;bottom:16px;left:12px;}
+  .wa-btn{width:58px;height:58px;bottom:16px;left:14px;}
   .wa-btn svg{width:28px;height:28px;}
 }
 @media(max-width:640px){
-  .tramite-float{top:76px;left:10px;}
-  .wa-btn{left:10px;}
+  .tramite-float{top:76px;left:12px;}
+  .wa-btn{left:12px;}
 }
 
 /* ══ PROGRESS BAR ══ */
@@ -907,12 +907,20 @@ function closeAllPanels(){
 function positionPanel(panel,trigger){
   const r=trigger.getBoundingClientRect();
   const w=Math.min(Math.max(r.width,240),window.innerWidth-24);
-  const maxH=Math.min(280,window.innerHeight*.52);
+  const maxH=Math.min(300,window.innerHeight*.5);
   panel.style.width=w+'px'; panel.style.maxHeight=maxH+'px';
-  let top=r.bottom+4, left=r.left;
-  if(top+maxH>window.innerHeight-8) top=Math.max(8,r.top-maxH-4);
-  if(left+w>window.innerWidth-8)    left=Math.max(8,window.innerWidth-w-8);
-  panel.style.top=top+'px'; panel.style.left=left+'px';
+  // Usar posición viewport (no absoluta) para que coincida con el botón
+  let top=r.bottom+6;
+  let left=r.left;
+  // Si no cabe abajo, abrir hacia arriba
+  if(top+maxH>window.innerHeight-8) top=r.top-maxH-6;
+  // No salirse por la derecha
+  if(left+w>window.innerWidth-8) left=Math.max(8,window.innerWidth-w-8);
+  // No salirse por arriba
+  if(top<8) top=8;
+  panel.style.position='fixed';
+  panel.style.top=top+'px';
+  panel.style.left=left+'px';
 }
 
 function openPanel(panel,trigger,onOpen){
@@ -1003,6 +1011,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   initProgressBar();
   // Llenar el resumen inmediatamente (reemplaza el skeleton con datos reales vacíos)
   buildSummary();
+  // Mostrar barra de almacenamiento con indicador de compresión desde el inicio
+  updateStorage();
   // Mayúsculas en tiempo real en todos los text inputs salvo teléfono
   document.querySelectorAll('input[type=text]').forEach(inp=>{
     if(['f-telefono'].includes(inp.id)) return;
@@ -1237,8 +1247,17 @@ function renderFiles(){
 function updateStorage(){
   const wrap=document.getElementById('stor-wrap');
   const used=uploadedFiles.reduce((a,x)=>a+x.file.size,0);
-  if(!uploadedFiles.length){ wrap.style.display='none'; return; }
   wrap.style.display='block';
+  if(!uploadedFiles.length){
+    document.getElementById('stor-txt').textContent='0 KB de 5 MB';
+    document.getElementById('stor-bar').style.width='0%';
+    document.getElementById('stor-bar').style.background='var(--ok)';
+    const isDark=document.body.classList.contains('dark-mode');
+    const txtColor=isDark?'#c8d6f0':'var(--mid)';
+    document.getElementById('stor-status').innerHTML=
+      '<span class="sdot" style="background:#10B981"></span><span style="font-size:12px;color:'+txtColor+';font-weight:600">⚙️ Compresión automática incluida — Límite: 5 MB</span>';
+    return;
+  }
   const pct=Math.min((used/MAX_BYTES)*100,100);
   const left=MAX_BYTES-used;
   document.getElementById('stor-txt').textContent=`${fmtB(used)} de 5 MB`;
@@ -1626,7 +1645,7 @@ function resetForm(){
   document.getElementById('ava-form').reset();
   uploadedFiles=[];
   document.getElementById('file-list').innerHTML='';
-  document.getElementById('stor-wrap').style.display='none';
+  updateStorage();
   document.getElementById('cp-extra').style.display='none';
   document.getElementById('marca-otro-wrap').style.display='none';
   document.getElementById('decl-box').classList.remove('checked');
