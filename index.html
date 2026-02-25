@@ -139,11 +139,53 @@ body.dark .csel-opt:hover{background:rgba(77,138,255,.1)}
 .lada-btn:hover,.lada-btn.open{border-color:var(--blue)}
 .lada-code{font-weight:600;font-size:13px;color:var(--navy);transition:color .3s}
 
-/* CP */
+/* ══ CP FIELDS ══ */
 .cp-row{position:relative}
 .cp-spin{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:none;align-items:center}
 .spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* CP EXTRA — oculto por defecto, visible cuando CP es válido */
+.cp-extra-block{
+  display:none;
+  flex-direction:column;
+  gap:18px;
+  /* Animación de entrada */
+  animation:fadeSlideIn .35s ease forwards
+}
+.cp-extra-block.visible{display:flex}
+@keyframes fadeSlideIn{
+  from{opacity:0;transform:translateY(-8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Badge de CP validado */
+.cp-ok-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(16,185,129,.08);border:1.5px solid rgba(16,185,129,.25);
+  border-radius:99px;padding:5px 12px;font-size:12px;font-weight:600;
+  color:#059669;margin-top:4px;width:fit-content
+}
+body.dark .cp-ok-badge{background:rgba(16,185,129,.12);color:#34d399;border-color:rgba(16,185,129,.3)}
+.cp-ok-dot{width:7px;height:7px;border-radius:50%;background:#10B981;animation:pdot 2s infinite}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Readonly inputs mejorados */
+.readonly-field{
+  width:100%;padding:11px 14px;
+  border:1.5px solid var(--border);border-radius:var(--r);
+  font-family:'DM Sans',sans-serif;font-size:14px;
+  color:var(--mid);background:var(--gray-100);
+  cursor:default;display:flex;align-items:center;gap:8px;
+  transition:background .3s,border-color .3s
+}
+.readonly-field.filled{
+  border-color:var(--ok);background:rgba(16,185,129,.04);
+  color:var(--input-color);font-weight:500
+}
+body.dark .readonly-field.filled{background:rgba(16,185,129,.06)}
+.readonly-field-ico{font-size:14px;flex-shrink:0}
+.readonly-field-val{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:uppercase}
 
 /* DROPZONE */
 .attach-dropzone{
@@ -176,7 +218,6 @@ body.dark .cap-head{color:#c8d6f0}
 .cap-dot.g{background:#0FC373}
 .cap-dot.y{background:#F59E0B}
 .cap-dot.r{background:#FF4757;animation:pdot 1s infinite}
-@keyframes pdot{0%,100%{opacity:1}50%{opacity:.3}}
 .cap-err{background:rgba(255,71,87,.08);border:1.5px solid rgba(255,71,87,.3);border-radius:10px;padding:9px 13px;font-size:12px;color:#d93546;margin-top:8px;display:none;gap:7px;align-items:center}
 .cap-err.on{display:flex}
 
@@ -285,7 +326,6 @@ body.dark .decl-text strong{color:#e8edf8}
 .btn-submit:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
 .recap-note{font-size:11px;color:var(--gray);text-align:center;margin-top:10px;line-height:1.5}
 .recap-note a{color:var(--blue);text-decoration:none}
-/* Estilo del badge reCAPTCHA v3 */
 .grecaptcha-badge{visibility:visible!important;opacity:1!important;box-shadow:0 4px 18px rgba(0,0,0,.2)!important;border-radius:8px 0 0 8px!important}
 
 /* ENVÍO STATUS */
@@ -315,19 +355,18 @@ body.dark .prog-txt strong{color:#78b0ff}
 @keyframes shine2{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 
 .float-btn{
-  position:fixed;z-index:1900;width:56px;height:56px;border-radius:50%;
-  display:flex;align-items:center;justify-content:hidden;overflow:hidden;
+  position:fixed;z-index:1900;width:68px;height:68px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
   box-shadow:0 8px 28px rgba(0,0,0,.25),0 0 0 3px #fff;text-decoration:none;
   animation:float 3s ease-in-out infinite;transition:transform .3s,box-shadow .3s
 }
-.float-btn{display:flex;align-items:center;justify-content:center;overflow:hidden}
 .float-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,.25) 50%,transparent 70%);animation:shine2 3s infinite}
 .float-btn:hover{animation:none;transform:scale(1.15) translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.35),0 0 0 3px #fff}
 .float-btn svg{position:relative;z-index:1}
-.tramite-btn{top:60px;left:16px;background:linear-gradient(135deg,#0A1F44,#1a3a6e)}
-.wa-btn{bottom:20px;left:16px;background:#25D366;animation-delay:.6s}
+.tramite-btn{top:60px;left:50px;background:linear-gradient(135deg,#0A1F44,#1a3a6e)}
+.wa-btn{bottom:20px;left:50px;background:#25D366;animation-delay:.6s}
 .tramite-tip{
-  position:absolute;left:66px;top:50%;transform:translateY(-50%);
+  position:absolute;left:78px;top:50%;transform:translateY(-50%);
   background:#fff;color:#0A1F44;padding:9px 16px;border-radius:10px;
   white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.15);
   opacity:0;pointer-events:none;transition:all .3s;font-size:14px;font-weight:600;
@@ -435,10 +474,10 @@ body.dark .modal-div{background:#1e2d50}
 <!-- BOTONES FLOTANTES -->
 <a href="https://www.anpai.com.mx/iniciar-tramite" class="float-btn tramite-btn" target="_blank" rel="noopener" aria-label="Iniciar trámite">
   <span class="tramite-tip">📝 Iniciar trámite</span>
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+  <svg width="34" height="34" viewBox="0 0 24 24" fill="white"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
 </a>
 <a href="https://wa.me/527471234567" class="float-btn wa-btn" target="_blank" rel="noopener" aria-label="WhatsApp">
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  <svg width="34" height="34" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 </a>
 
 <!-- TEMA -->
@@ -523,24 +562,52 @@ body.dark .modal-div{background:#1e2d50}
         <div class="ferr" id="err-rfc">RFC inválido — persona física: 13 caracteres · persona moral: 12 caracteres.</div>
         <div class="helper">Persona física: 4 letras + fecha AAMMDD + 3 alfanuméricos = 13 caracteres.</div>
       </div>
+
+      <!-- ══ CÓDIGO POSTAL + CAMPOS AUTOCOMPLETADOS ══ -->
       <div class="field">
         <label>Código Postal<span class="req">*</span></label>
         <div class="cp-row">
-          <input type="text" id="f-cp" name="codigo_postal" placeholder="Ej. 39000" maxlength="5" inputmode="numeric" data-req/>
+          <input type="text" id="f-cp" name="codigo_postal"
+                 placeholder="Ej. 39000" maxlength="5" inputmode="numeric" data-req
+                 autocomplete="postal-code"/>
           <div class="cp-spin" id="cp-spin"><div class="spinner"></div></div>
         </div>
+        <!-- Badge que aparece cuando el CP es válido -->
+        <div id="cp-ok-badge" style="display:none">
+          <div class="cp-ok-badge">
+            <span class="cp-ok-dot"></span>
+            <span id="cp-ok-txt">Código postal verificado</span>
+          </div>
+        </div>
+        <div class="helper">Ingresa tus 5 dígitos — Estado, Municipio y Colonia se completarán automáticamente.</div>
       </div>
-      <div id="cp-extra" style="display:none;flex-direction:column;gap:18px">
+
+      <!-- Bloque que se muestra tras validar el CP -->
+      <div class="cp-extra-block" id="cp-extra">
+
+        <!-- Estado y Municipio en grid de 2 columnas -->
         <div class="grid-2">
           <div class="field">
             <label>Estado</label>
-            <input type="text" id="cp-estado" name="estado" readonly/>
+            <!-- Campo visual readonly con estilo mejorado -->
+            <div class="readonly-field" id="rf-estado">
+              <span class="readonly-field-ico">📍</span>
+              <span class="readonly-field-val" id="rf-estado-val">—</span>
+            </div>
+            <!-- Input oculto para envío del formulario -->
+            <input type="hidden" id="cp-estado" name="estado"/>
           </div>
           <div class="field">
             <label>Municipio</label>
-            <input type="text" id="cp-municipio" name="municipio" readonly/>
+            <div class="readonly-field" id="rf-municipio">
+              <span class="readonly-field-ico">🏙️</span>
+              <span class="readonly-field-val" id="rf-municipio-val">—</span>
+            </div>
+            <input type="hidden" id="cp-municipio" name="municipio"/>
           </div>
         </div>
+
+        <!-- Colonia desplegable -->
         <div class="field">
           <label>Colonia<span class="req">*</span></label>
           <div class="csel">
@@ -551,8 +618,12 @@ body.dark .modal-div{background:#1e2d50}
             <div class="csel-panel" id="panel-btn-colonia"></div>
             <input type="hidden" id="val-colonia" name="colonia"/>
           </div>
+          <div class="helper" id="col-count-helper"></div>
         </div>
+
       </div>
+      <!-- /cp-extra-block -->
+
       <div class="field">
         <label>Teléfono<span class="req">*</span></label>
         <div class="phone-row">
@@ -781,11 +852,7 @@ body.dark .modal-div{background:#1e2d50}
 var CFG = {
   MAX_ZIP: 5 * 1024 * 1024,
   COPOMEX: '36da398a-1848-44f3-a952-06c9bfb02cc8',
-  // ── REEMPLAZA con tu Site Key de Google reCAPTCHA v3 ──────────────────────
-  // Regístrate en: https://www.google.com/recaptcha/admin/create
-  // Selecciona reCAPTCHA v3, agrega tu dominio y copia la Site Key aquí.
   RECAPTCHA_SITE_KEY: '6Lc9zGUsAAAAAG2K5TAav3VrS9obGfFqXO5cnOkV',
-  // ─── ENDPOINT FORMSUBMIT ───────────────────────────────────────────────────
   FORMSUBMIT_URL: 'https://formsubmit.co/info@anpai.com.mx'
 };
 
@@ -944,50 +1011,132 @@ function initLada(){
   si.oninput=function(){render(si.value);}; si.onclick=function(e){e.stopPropagation();};
 }
 
-/* ══ COPOMEX ══ */
+/* ══════════════════════════════════
+   CÓDIGO POSTAL — COPOMEX
+══════════════════════════════════ */
 function initCP(){
-  var inp = document.getElementById('f-cp');
-  var spin = document.getElementById('cp-spin');
-  var extra = document.getElementById('cp-extra');
+  var inp    = document.getElementById('f-cp');
+  var spin   = document.getElementById('cp-spin');
+  var extra  = document.getElementById('cp-extra');
+  var badge  = document.getElementById('cp-ok-badge');
+  var okTxt  = document.getElementById('cp-ok-txt');
   var t;
-  inp.addEventListener('input',function(){
-    inp.value = inp.value.replace(/\D/g,'');
+
+  inp.addEventListener('input', function(){
+    // Solo dígitos
+    this.value = this.value.replace(/\D/g, '');
     clearTimeout(t);
-    var cp = inp.value.trim();
-    if(cp.length!==5){ extra.style.display='none'; onChange2(); return; }
-    t=setTimeout(function(){ fetchCP(cp); },700);
+
+    var cp = this.value.trim();
+
+    // Si el CP se borra o es incompleto, ocultar bloque
+    if(cp.length !== 5){
+      hideCPExtra();
+      onChange2();
+      return;
+    }
+
+    // Esperar 700ms antes de consultar
+    t = setTimeout(function(){ fetchCP(cp); }, 700);
   });
+
+  function hideCPExtra(){
+    extra.classList.remove('visible');
+    badge.style.display = 'none';
+    // Limpiar valores
+    document.getElementById('cp-estado').value    = '';
+    document.getElementById('cp-municipio').value = '';
+    document.getElementById('val-colonia').value  = '';
+    document.getElementById('rf-estado-val').textContent   = '—';
+    document.getElementById('rf-municipio-val').textContent = '—';
+    document.getElementById('rf-estado').classList.remove('filled');
+    document.getElementById('rf-municipio').classList.remove('filled');
+    // Resetear selector de colonia
+    var cb = document.getElementById('btn-colonia');
+    cb.innerHTML = '<span class="csel-ph">Selecciona tu colonia...</span>' +
+      '<svg class="csel-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke-width="2" stroke-linecap="round"/></svg>';
+    var cp2 = document.getElementById('panel-btn-colonia'); cp2.innerHTML = '';
+    document.getElementById('col-count-helper').textContent = '';
+  }
+
   function fetchCP(cp){
-    spin.style.display='flex';
-    fetch('https://api.copomex.com/query/info_cp/'+cp+'?token='+CFG.COPOMEX)
-      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    spin.style.display = 'flex';
+    hideCPExtra();
+
+    fetch('https://api.copomex.com/query/info_cp/' + cp + '?token=' + CFG.COPOMEX)
+      .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function(data){
-        var arr = Array.isArray(data)?data:[data];
-        var valid = arr.filter(function(i){ return !i.error&&i.response; });
-        if(!valid.length){ extra.style.display='none'; return; }
+        var arr    = Array.isArray(data) ? data : [data];
+        var valid  = arr.filter(function(i){ return i && !i.error && i.response; });
+
+        if(!valid.length){ throw new Error('CP no encontrado'); }
+
         var r0 = valid[0].response;
-        document.getElementById('cp-estado').value = r0.estado||'';
-        document.getElementById('cp-municipio').value = r0.municipio||r0.ciudad||'';
-        var cols=[];
-        if(typeof r0.asentamiento==='string') cols=valid.map(function(i){return i.response.asentamiento||'';}).filter(Boolean);
-        else if(Array.isArray(r0.asentamiento)) cols=r0.asentamiento.filter(Boolean);
-        else cols=valid.map(function(i){return i.response.asentamiento||i.response.colonia||'';}).filter(Boolean);
-        cols=[...new Set(cols)].sort();
-        document.getElementById('val-colonia').value='';
-        var cb=document.getElementById('btn-colonia');
-        cb.innerHTML='<span class="csel-ph">Selecciona tu colonia...</span><svg class="csel-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke-width="2" stroke-linecap="round"/></svg>';
-        var cp2=document.getElementById('panel-btn-colonia'); cp2.innerHTML='';
-        makeSelect('btn-colonia','val-colonia',cols,cols.length>8);
-        extra.style.display='flex';
+
+        // ── Estado ──────────────────────────────────────────
+        var estado = (r0.estado || '').trim();
+        document.getElementById('cp-estado').value = estado;
+        document.getElementById('rf-estado-val').textContent = estado || '—';
+        document.getElementById('rf-estado').classList.toggle('filled', !!estado);
+
+        // ── Municipio ────────────────────────────────────────
+        var municipio = (r0.municipio || r0.ciudad || '').trim();
+        document.getElementById('cp-municipio').value = municipio;
+        document.getElementById('rf-municipio-val').textContent = municipio || '—';
+        document.getElementById('rf-municipio').classList.toggle('filled', !!municipio);
+
+        // ── Colonias ─────────────────────────────────────────
+        var cols = [];
+        if(typeof r0.asentamiento === 'string'){
+          // COPOMEX puede devolver un solo string o un array según el CP
+          cols = valid.map(function(i){ return (i.response.asentamiento || '').trim(); }).filter(Boolean);
+        } else if(Array.isArray(r0.asentamiento)){
+          cols = r0.asentamiento.map(function(c){ return (c||'').trim(); }).filter(Boolean);
+        } else {
+          cols = valid.map(function(i){
+            return (i.response.asentamiento || i.response.colonia || '').trim();
+          }).filter(Boolean);
+        }
+        cols = [...new Set(cols)].sort(function(a,b){ return a.localeCompare(b,'es'); });
+
+        // Resetear selector de colonia
+        document.getElementById('val-colonia').value = '';
+        var cb  = document.getElementById('btn-colonia');
+        var cp2 = document.getElementById('panel-btn-colonia');
+        cb.innerHTML = '<span class="csel-ph">Selecciona tu colonia...</span>' +
+          '<svg class="csel-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke-width="2" stroke-linecap="round"/></svg>';
+        cp2.innerHTML = '';
+
+        // Construir nuevo selector con las colonias
+        makeSelect('btn-colonia', 'val-colonia', cols, cols.length > 6);
+
+        // Helper con número de colonias
+        var helper = document.getElementById('col-count-helper');
+        helper.textContent = cols.length > 0
+          ? cols.length + ' colonia' + (cols.length > 1 ? 's' : '') + ' disponible' + (cols.length > 1 ? 's' : '')
+          : 'No se encontraron colonias para este C.P.';
+
+        // ── Badge de verificación ─────────────────────────────
+        okTxt.textContent = 'C.P. ' + cp + ' verificado — ' + municipio + ', ' + estado;
+        badge.style.display = 'block';
+
+        // ── Mostrar bloque con animación ──────────────────────
+        extra.classList.add('visible');
       })
-      .catch(function(){ extra.style.display='none'; })
-      .finally(function(){ spin.style.display='none'; onChange2(); });
+      .catch(function(err){
+        console.warn('COPOMEX error:', err);
+        hideCPExtra();
+        badge.style.display = 'none';
+      })
+      .finally(function(){
+        spin.style.display = 'none';
+        onChange2();
+      });
   }
 }
 
 /* ══ INIT ══ */
-document.addEventListener('DOMContentLoaded',function(){
-  // ── Cargar reCAPTCHA v3 dinámicamente con la site key configurada ──────────
+document.addEventListener('DOMContentLoaded', function(){
   if(CFG.RECAPTCHA_SITE_KEY && CFG.RECAPTCHA_SITE_KEY !== 'TU_SITE_KEY'){
     var rcScript = document.createElement('script');
     rcScript.src = 'https://www.google.com/recaptcha/api.js?render=' + CFG.RECAPTCHA_SITE_KEY;
@@ -1211,7 +1360,7 @@ function buildSummary(){
   }
   var nom=[gv('f-nombre'),gv('f-snombre'),gv('f-ap'),gv('f-am')].filter(Boolean).join(' ');
   var telFull=(gv('val-lada')+' '+gv('f-tel')).trim();
-  var cpE=document.getElementById('cp-extra'), cpVis=cpE&&cpE.style.display!=='none';
+  var cpVis = document.getElementById('cp-extra').classList.contains('visible');
   var mV=gv('val-marca'), mFinal=mV==='Otra marca'?'Otra ('+(gv('f-marca-otro')||'—')+')':mV;
   var archStr=S.files.length?(S.files.length+' archivo(s)'+(S.zipBlob?' — ZIP: '+fmt(S.zipBlob.size):'')):'';
 
@@ -1222,7 +1371,7 @@ function buildSummary(){
     )+
     grp('📍','Domicilio',
       row('Código Postal',gv('f-cp'))+
-      (cpVis?row('Estado',gv('cp-estado'))+row('Municipio',gv('cp-municipio'))+row('Colonia',gv('val-colonia')):'')
+      (cpVis ? row('Estado',gv('cp-estado'))+row('Municipio',gv('cp-municipio'))+row('Colonia',gv('val-colonia')) : '')
     )+
     grp('🚗','Vehículo',
       row('Tipo',gv('val-tipo'),'sum-chip')+row('Marca',mFinal,'sum-chip')+row('Versión',gv('f-version'))+
@@ -1244,8 +1393,8 @@ function isComplete(){
     if(!el.offsetParent&&el.type!=='hidden') return;
     if(!el.value.trim()) ok=false;
   });
-  var cpE=document.getElementById('cp-extra');
-  if(cpE&&cpE.style.display!=='none') if(!gv('val-colonia')) ok=false;
+  var cpVis = document.getElementById('cp-extra').classList.contains('visible');
+  if(cpVis && !gv('val-colonia')) ok=false;
   if(!CURP_RE.test(gv('f-curp'))) ok=false;
   if(!RFC_PF.test(gv('f-rfc'))&&!RFC_PM.test(gv('f-rfc'))) ok=false;
   if(!S.files.length) ok=false;
@@ -1274,8 +1423,8 @@ function updateProgress(){
       var cap=el; fields.push(function(){return !!cap.value.trim();});
     }
   });
-  var cpE=document.getElementById('cp-extra');
-  if(cpE&&cpE.style.display!=='none'){
+  var cpVis = document.getElementById('cp-extra').classList.contains('visible');
+  if(cpVis){
     fields.push(function(){return !!gv('val-colonia');});
   }
   fields.push(function(){return S.files.length>0;});
@@ -1314,7 +1463,8 @@ function scrollToFirst(){
       var h=document.getElementById(c.id); if(!h) continue;
       if(!h.value.trim()){ flashBtn(c.b); return true; }
     } else if(c.t==='col'){
-      var ce=document.getElementById('cp-extra'); if(!ce||ce.style.display==='none') continue;
+      var cpVis = document.getElementById('cp-extra').classList.contains('visible');
+      if(!cpVis) continue;
       if(!gv('val-colonia')){ flashBtn('btn-colonia'); return true; }
     } else if(c.t==='mo'){
       if(gv('val-marca')==='Otra marca'){ var m=document.getElementById('f-marca-otro'); if(m&&!m.value.trim()){ m.scrollIntoView({behavior:'smooth',block:'center'}); m.focus(); flash(m); return true; } }
@@ -1352,7 +1502,6 @@ function doSend(){
   status.className = 'send-status loading';
   statusTxt.textContent = 'Preparando envío...';
 
-  // Esperar si ZIP aún comprimiendo
   if(S.compressing){
     statusTxt.textContent = 'Esperando compresión del ZIP...';
     var poll = setInterval(function(){
@@ -1360,7 +1509,6 @@ function doSend(){
     }, 300);
     return;
   }
-  // Si hay archivos sin ZIP todavía, comprimir primero
   if(S.files.length && !S.zipBlob){
     statusTxt.textContent = 'Comprimiendo archivos...';
     scheduleCompress();
@@ -1392,20 +1540,16 @@ function sendWithFetch(recaptchaToken){
   statusTxt.textContent = 'Enviando solicitud con documentos...';
 
   var nom = [gv('f-nombre'),gv('f-snombre'),gv('f-ap'),gv('f-am')].filter(Boolean).join(' ');
-  var cpE = document.getElementById('cp-extra');
-  var cpVis = cpE && cpE.style.display !== 'none';
+  var cpVis = document.getElementById('cp-extra').classList.contains('visible');
   var mV = gv('val-marca');
   var mFinal = mV === 'Otra marca' ? 'Otra (' + gv('f-marca-otro') + ')' : mV;
 
   var fd = new FormData();
-
-  // Directivas FormSubmit
   fd.append('_subject',  'Nueva Solicitud AVA — ' + nom + ' — ' + new Date().toLocaleDateString('es-MX'));
   fd.append('_template', 'table');
   fd.append('_captcha',  'false');
   if(recaptchaToken) fd.append('g-recaptcha-response', recaptchaToken);
 
-  // Datos del solicitante
   fd.append('Nombre_Completo',  nom);
   fd.append('Genero',           gv('val-genero'));
   fd.append('Fecha_Nacimiento', gv('f-nacimiento'));
@@ -1413,16 +1557,12 @@ function sendWithFetch(recaptchaToken){
   fd.append('RFC',              gv('f-rfc'));
   fd.append('Telefono',         gv('val-lada') + ' ' + gv('f-tel'));
   fd.append('Email',            gv('f-email'));
-
-  // Domicilio
-  fd.append('Codigo_Postal', gv('f-cp'));
+  fd.append('Codigo_Postal',    gv('f-cp'));
   if(cpVis){
     fd.append('Estado',    gv('cp-estado'));
     fd.append('Municipio', gv('cp-municipio'));
     fd.append('Colonia',   gv('val-colonia'));
   }
-
-  // Vehículo
   fd.append('Tipo_Vehiculo',   gv('val-tipo'));
   fd.append('Marca',           mFinal);
   fd.append('Version',         gv('f-version'));
@@ -1431,7 +1571,6 @@ function sendWithFetch(recaptchaToken){
   fd.append('Num_Motor',       gv('f-motor'));
   fd.append('Clave_Vehicular', gv('f-clave'));
 
-  // ZIP adjunto
   if(S.zipBlob){
     var zipFile = new File([S.zipBlob], 'documentos-' + today() + '.zip', {type:'application/zip'});
     fd.append('attachment', zipFile, zipFile.name);
@@ -1440,15 +1579,6 @@ function sendWithFetch(recaptchaToken){
   fetch(CFG.FORMSUBMIT_URL, {method:'POST', body:fd})
     .then(function(){ showModal(); resetSendUI(); })
     .catch(function(){ showModal(); resetSendUI(); });
-}
-
-function showSendError(msg){
-  var btn = document.getElementById('btn-send');
-  var status = document.getElementById('send-status');
-  var statusTxt = document.getElementById('send-status-txt');
-  btn.disabled = false;
-  status.className = 'send-status error';
-  statusTxt.textContent = msg;
 }
 
 function resetSendUI(){
@@ -1480,12 +1610,23 @@ function resetForm(){
   document.getElementById('rt-stats').style.display='none';
   document.getElementById('compress-box').classList.remove('on');
   document.getElementById('cap-wrap').classList.remove('on');
-  document.getElementById('cp-extra').style.display='none';
-  document.getElementById('cp-estado').value='';
-  document.getElementById('cp-municipio').value='';
+
+  // Reset CP extra
+  var extra = document.getElementById('cp-extra');
+  extra.classList.remove('visible');
+  document.getElementById('cp-ok-badge').style.display = 'none';
+  document.getElementById('cp-estado').value    = '';
+  document.getElementById('cp-municipio').value = '';
+  document.getElementById('rf-estado-val').textContent   = '—';
+  document.getElementById('rf-municipio-val').textContent = '—';
+  document.getElementById('rf-estado').classList.remove('filled');
+  document.getElementById('rf-municipio').classList.remove('filled');
+  document.getElementById('col-count-helper').textContent = '';
+
   document.getElementById('marca-otro-wrap').style.display='none';
   document.getElementById('f-marca-otro').value='';
   document.getElementById('decl').classList.remove('checked');
+
   function resetBtn(id,ph){
     var el=document.getElementById(id);
     if(el) el.innerHTML='<span class="csel-ph">'+ph+'</span><svg class="csel-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke-width="2" stroke-linecap="round"/></svg>';
