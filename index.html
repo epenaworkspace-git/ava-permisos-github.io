@@ -88,7 +88,7 @@ input[readonly]{background:var(--gray-100)!important;color:var(--mid)!important;
 .csel-arrow{flex-shrink:0;transition:transform .2s;stroke:var(--gray)}
 .csel-btn.open .csel-arrow{transform:rotate(180deg)}
 
-/* Panel — posicionamiento absoluto correcto */
+/* Panel */
 .csel-panel{
   position:absolute;left:0;top:calc(100% + 6px);
   z-index:2000;width:100%;min-width:220px;
@@ -98,7 +98,6 @@ input[readonly]{background:var(--gray-100)!important;color:var(--mid)!important;
   max-height:260px;
 }
 .csel-panel.open{display:flex}
-/* Cuando abre hacia arriba */
 .csel-panel.up{top:auto;bottom:calc(100% + 6px)}
 
 .csel-srchwrap{padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--card-bg)}
@@ -123,7 +122,7 @@ input[readonly]{background:var(--gray-100)!important;color:var(--mid)!important;
 body.dark .csel-opt:hover{background:rgba(77,138,255,.1)}
 .csel-opt.sel{color:var(--blue);font-weight:600;background:rgba(22,93,255,.05)}
 
-/* Velo para cerrar al clicar fuera */
+/* Velo */
 .csel-veil{display:none;position:fixed;inset:0;z-index:1999}
 .csel-veil.on{display:block}
 
@@ -314,10 +313,11 @@ body.dark .prog-txt strong{color:#78b0ff}
 
 .float-btn{
   position:fixed;z-index:1900;width:56px;height:56px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  display:flex;align-items:center;justify-content:hidden;overflow:hidden;
   box-shadow:0 8px 28px rgba(0,0,0,.25),0 0 0 3px #fff;text-decoration:none;
   animation:float 3s ease-in-out infinite;transition:transform .3s,box-shadow .3s
 }
+.float-btn{display:flex;align-items:center;justify-content:center;overflow:hidden}
 .float-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,.25) 50%,transparent 70%);animation:shine2 3s infinite}
 .float-btn:hover{animation:none;transform:scale(1.15) translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.35),0 0 0 3px #fff}
 .float-btn svg{position:relative;z-index:1}
@@ -389,6 +389,9 @@ body.dark .modal-div{background:#1e2d50}
 </style>
 </head>
 <body>
+
+<!-- IFRAME OCULTO para envío del formulario con archivos (FormSubmit estándar) -->
+<iframe id="submit-iframe" name="submit-iframe" style="display:none" aria-hidden="true"></iframe>
 
 <!-- MODAL ÉXITO -->
 <div class="modal-bg" id="modalBg">
@@ -772,7 +775,13 @@ body.dark .modal-div{background:#1e2d50}
 
 var CFG = {
   MAX_ZIP: 5 * 1024 * 1024,
-  COPOMEX: '36da398a-1848-44f3-a952-06c9bfb02cc8'
+  COPOMEX: '36da398a-1848-44f3-a952-06c9bfb02cc8',
+  // ─── ENDPOINT FORMSUBMIT (estándar, con soporte de archivos) ───────────────
+  // El endpoint /ajax/ de FormSubmit NO adjunta archivos.
+  // Usamos el endpoint estándar apuntando a un <iframe> oculto para evitar
+  // que la página redirija, y escuchamos el evento "load" del iframe para
+  // mostrar el modal de éxito.
+  FORMSUBMIT_URL: 'https://formsubmit.co/info@anpai.com.mx'
 };
 
 /* ══ TEMA ══ */
@@ -824,14 +833,13 @@ function openPanel(panel, btn){
   if(currentPanel && currentPanel !== panel){ closeAll(); }
   if(panel.classList.contains('open')){ closeAll(); return; }
 
-  // Calcular si abrir arriba o abajo
   var r = btn.getBoundingClientRect();
   var spaceBelow = window.innerHeight - r.bottom - 10;
   var panelH = Math.min(260, panel.scrollHeight || 260);
 
   if(spaceBelow < panelH && r.top > panelH){
     panel.classList.add('up');
-    panel.classList.remove('open'); // force reflow
+    panel.classList.remove('open');
     panel.classList.add('open');
   } else {
     panel.classList.remove('up');
@@ -842,7 +850,6 @@ function openPanel(panel, btn){
   veil.classList.add('on');
   currentPanel = panel;
 
-  // Scroll search input to focus
   var si = panel.querySelector('.csel-srchwrap input');
   if(si) setTimeout(function(){ si.focus(); }, 60);
 }
@@ -853,7 +860,6 @@ function makeSelect(btnId, hiddenId, items, searchable, onChange){
   var panel = document.getElementById('panel-' + btnId);
   if(!btn || !hidden || !panel) return;
 
-  // Build search if needed
   var srchEl = null;
   if(searchable){
     var sw = document.createElement('div'); sw.className = 'csel-srchwrap';
@@ -962,7 +968,6 @@ function initCP(){
         else if(Array.isArray(r0.asentamiento)) cols=r0.asentamiento.filter(Boolean);
         else cols=valid.map(function(i){return i.response.asentamiento||i.response.colonia||'';}).filter(Boolean);
         cols=[...new Set(cols)].sort();
-        // Resetear colonia
         document.getElementById('val-colonia').value='';
         var cb=document.getElementById('btn-colonia');
         cb.innerHTML='<span class="csel-ph">Selecciona tu colonia...</span><svg class="csel-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke-width="2" stroke-linecap="round"/></svg>';
@@ -998,7 +1003,6 @@ document.addEventListener('DOMContentLoaded',function(){
   initCP();
   initValidation();
 
-  // Mayúsculas automáticas en text inputs (excepto teléfono, email, honey)
   document.querySelectorAll('input[type=text]').forEach(function(inp){
     if(['f-tel'].indexOf(inp.id)>=0) return;
     inp.addEventListener('input',function(){
@@ -1008,7 +1012,6 @@ document.addEventListener('DOMContentLoaded',function(){
     });
   });
 
-  // Listeners generales para onChange
   document.querySelectorAll('[data-req]').forEach(function(el){
     el.addEventListener('input',onChange2);
     el.addEventListener('change',onChange2);
@@ -1314,7 +1317,36 @@ function scrollToFirst(){
   return false;
 }
 
-/* ══ ENVÍO POR FORMSUBMIT (AJAX — sin redirección) ══ */
+/* ══════════════════════════════════════════════════════════════════════════════
+   ENVÍO CON IFRAME — SOLUCIÓN CORRECTA PARA ADJUNTAR ARCHIVOS EN FORMSUBMIT
+   ─────────────────────────────────────────────────────────────────────────────
+   El endpoint /ajax/ de FormSubmit NO procesa archivos adjuntos (solo texto).
+   La única forma de enviar archivos con FormSubmit es via el endpoint estándar
+   (https://formsubmit.co/<email>) con enctype="multipart/form-data".
+
+   Para evitar la redirección de página usamos un <iframe> oculto como target,
+   y escuchamos su evento "load" para detectar que el envío finalizó y mostrar
+   el modal de éxito sin recargar la página.
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* Variable de control para detectar primer load (inicial) del iframe */
+var iframeReady = false;
+var iframeSending = false;
+var iframeTimeout = null;
+
+document.addEventListener('DOMContentLoaded', function(){
+  var iframe = document.getElementById('submit-iframe');
+  // El primer "load" del iframe es cuando se crea (about:blank), lo ignoramos
+  iframe.addEventListener('load', function(){
+    if(!iframeSending) return; // no estamos enviando, ignorar
+    // Este load fue resultado del POST → éxito
+    clearTimeout(iframeTimeout);
+    iframeSending = false;
+    showModal();
+    resetSendUI();
+  });
+});
+
 function initSubmit(){
   document.getElementById('ava-form').addEventListener('submit', function(e){
     e.preventDefault();
@@ -1358,9 +1390,8 @@ function doSend(){
 }
 
 function proceedSend(){
-  var status = document.getElementById('send-status');
   var statusTxt = document.getElementById('send-status-txt');
-  statusTxt.textContent = 'Enviando solicitud...';
+  statusTxt.textContent = 'Enviando solicitud con documentos...';
 
   var nom = [gv('f-nombre'),gv('f-snombre'),gv('f-ap'),gv('f-am')].filter(Boolean).join(' ');
   var cpE = document.getElementById('cp-extra');
@@ -1368,68 +1399,93 @@ function proceedSend(){
   var mV = gv('val-marca');
   var mFinal = mV === 'Otra marca' ? 'Otra (' + gv('f-marca-otro') + ')' : mV;
 
-  // FormData — el browser pone Content-Type multipart/form-data con boundary automático
-  var fd = new FormData();
+  /* ─── Construir un <form> real con enctype multipart y target=iframe ─── */
+  var form = document.createElement('form');
+  form.method  = 'POST';
+  form.action  = CFG.FORMSUBMIT_URL;
+  form.enctype = 'multipart/form-data';
+  form.target  = 'submit-iframe';   // apunta al iframe oculto
+  form.style.display = 'none';
 
-  // Directivas de FormSubmit
-  fd.append('_subject', 'Nueva Solicitud AVA — ' + nom + ' — ' + new Date().toLocaleDateString('es-MX'));
-  fd.append('_template', 'table');
-  fd.append('_captcha', 'false');
+  function addField(name, value){
+    var inp = document.createElement('input');
+    inp.type  = 'hidden';
+    inp.name  = name;
+    inp.value = value;
+    form.appendChild(inp);
+  }
+
+  // Directivas FormSubmit
+  addField('_subject',  'Nueva Solicitud AVA — ' + nom + ' — ' + new Date().toLocaleDateString('es-MX'));
+  addField('_template', 'table');
+  addField('_captcha',  'false');
+  // _next se omite intencionalmente — el iframe absorbe la respuesta
+  // sin causar redirección en la página principal
 
   // Datos del solicitante
-  fd.append('Nombre_Completo', nom);
-  fd.append('Genero', gv('val-genero'));
-  fd.append('Fecha_Nacimiento', gv('f-nacimiento'));
-  fd.append('CURP', gv('f-curp'));
-  fd.append('RFC', gv('f-rfc'));
-  fd.append('Telefono', gv('val-lada') + ' ' + gv('f-tel'));
-  fd.append('Email', gv('f-email'));
+  addField('Nombre_Completo',  nom);
+  addField('Genero',           gv('val-genero'));
+  addField('Fecha_Nacimiento', gv('f-nacimiento'));
+  addField('CURP',             gv('f-curp'));
+  addField('RFC',              gv('f-rfc'));
+  addField('Telefono',         gv('val-lada') + ' ' + gv('f-tel'));
+  addField('Email',            gv('f-email'));
 
   // Domicilio
-  fd.append('Codigo_Postal', gv('f-cp'));
+  addField('Codigo_Postal', gv('f-cp'));
   if(cpVis){
-    fd.append('Estado', gv('cp-estado'));
-    fd.append('Municipio', gv('cp-municipio'));
-    fd.append('Colonia', gv('val-colonia'));
+    addField('Estado',    gv('cp-estado'));
+    addField('Municipio', gv('cp-municipio'));
+    addField('Colonia',   gv('val-colonia'));
   }
 
   // Vehículo
-  fd.append('Tipo_Vehiculo', gv('val-tipo'));
-  fd.append('Marca', mFinal);
-  fd.append('Version', gv('f-version'));
-  fd.append('Anio_Modelo', gv('val-anio'));
-  fd.append('Num_Serie_VIN', gv('f-vin'));
-  fd.append('Num_Motor', gv('f-motor'));
-  fd.append('Clave_Vehicular', gv('f-clave'));
+  addField('Tipo_Vehiculo',   gv('val-tipo'));
+  addField('Marca',           mFinal);
+  addField('Version',         gv('f-version'));
+  addField('Anio_Modelo',     gv('val-anio'));
+  addField('Num_Serie_VIN',   gv('f-vin'));
+  addField('Num_Motor',       gv('f-motor'));
+  addField('Clave_Vehicular', gv('f-clave'));
 
-  // ZIP adjunto como File (FormSubmit acepta archivos en FormData multipart)
+  // ZIP: crear un <input type="file"> y asignarle el blob como FileList
+  // usando DataTransfer (soportado en todos los navegadores modernos)
   if(S.zipBlob){
-    var zipFile = new File([S.zipBlob], 'documentos-' + today() + '.zip', {type: 'application/zip'});
-    fd.append('attachment', zipFile);
+    var zipFile = new File([S.zipBlob], 'documentos-' + today() + '.zip', {type:'application/zip'});
+    var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.name = 'attachment';
+    form.appendChild(fileInput);
+
+    try {
+      // DataTransfer permite asignar archivos programáticamente
+      var dt = new DataTransfer();
+      dt.items.add(zipFile);
+      fileInput.files = dt.files;
+    } catch(dtErr) {
+      // DataTransfer no disponible (Safari antiguo) → fallback sin adjunto
+      console.warn('DataTransfer no disponible, enviando sin adjunto ZIP:', dtErr);
+      form.removeChild(fileInput);
+      addField('Documentos_Info', 'ZIP generado en cliente: ' + fmt(S.zipBlob.size) + ' (' + S.files.length + ' archivo(s))');
+    }
   }
 
-  // Endpoint AJAX de FormSubmit — responde JSON, NO redirige
-  fetch('https://formsubmit.co/ajax/info@anpai.com.mx', {
-    method: 'POST',
-    headers: { 'Accept': 'application/json' },
-    // NO incluir Content-Type — el browser lo pone solo con el boundary correcto
-    body: fd
-  })
-  .then(function(res){
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
-  })
-  .then(function(data){
-    if(data.success === 'true' || data.success === true){
-      showModal();
-      resetSendUI();
-    } else {
-      showSendError('FormSubmit rechazó el envío: ' + (data.message || JSON.stringify(data)));
+  document.body.appendChild(form);
+
+  // Marcar que vamos a enviar ANTES de hacer submit
+  // (el evento "load" del iframe se dispara después del submit)
+  iframeSending = true;
+
+  // Timeout de seguridad: si el iframe no responde en 30s, mostrar error
+  iframeTimeout = setTimeout(function(){
+    if(iframeSending){
+      iframeSending = false;
+      showSendError('Tiempo de espera agotado. Verifica tu conexión e intenta de nuevo.');
     }
-  })
-  .catch(function(err){
-    showSendError('Error: ' + (err && err.message ? err.message : err) + '. Verifica tu internet e intenta de nuevo.');
-  });
+  }, 30000);
+
+  form.submit();
+  document.body.removeChild(form);
 }
 
 function showSendError(msg){
@@ -1465,22 +1521,17 @@ document.getElementById('modalBg').addEventListener('click',function(e){
 /* ══ RESET ══ */
 function resetForm(){
   document.getElementById('ava-form').reset();
-  // Archivos
   S={files:[],zipBlob:null,compressing:false,_runId:0,startTime:null};
   document.getElementById('file-list').innerHTML='';
   document.getElementById('rt-stats').style.display='none';
   document.getElementById('compress-box').classList.remove('on');
   document.getElementById('cap-wrap').classList.remove('on');
-  // CP
   document.getElementById('cp-extra').style.display='none';
   document.getElementById('cp-estado').value='';
   document.getElementById('cp-municipio').value='';
-  // Marca otro
   document.getElementById('marca-otro-wrap').style.display='none';
   document.getElementById('f-marca-otro').value='';
-  // Declaración
   document.getElementById('decl').classList.remove('checked');
-  // Selectores
   function resetBtn(id,ph){
     var el=document.getElementById(id);
     if(el) el.innerHTML='<span class="csel-ph">'+ph+'</span><svg class="csel-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke-width="2" stroke-linecap="round"/></svg>';
@@ -1493,7 +1544,6 @@ function resetForm(){
   document.querySelectorAll('input[type=hidden]').forEach(function(el){ if(el.id==='val-lada') el.value='+52'; else el.value=''; });
   document.getElementById('lada-flag').textContent='🇲🇽';
   document.getElementById('lada-code').textContent='+52';
-  // Validación visual
   document.querySelectorAll('.vi,.vok').forEach(function(el){ el.classList.remove('vi','vok'); });
   document.querySelectorAll('.ferr.on').forEach(function(el){ el.classList.remove('on'); });
   onChange2();
