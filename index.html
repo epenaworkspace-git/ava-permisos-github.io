@@ -150,7 +150,6 @@ body.dark .csel-opt:hover{background:rgba(77,138,255,.1)}
   display:none;
   flex-direction:column;
   gap:18px;
-  /* Animación de entrada */
   animation:fadeSlideIn .35s ease forwards
 }
 .cp-extra-block.visible{display:flex}
@@ -261,7 +260,9 @@ body.dark .lex.ok{background:#0a2a1e;color:#6ee7b7}
 body.dark .lex.bad{background:#2a0a0a;color:#fca5a5}
 .lex-label{font-weight:700;font-size:10px;letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:3px}
 
-/* SUMMARY */
+/* ══════════════════════════════════════
+   SUMMARY BADGE — 3 estados con parpadeo
+══════════════════════════════════════ */
 .sumbox{background:var(--card-bg);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--sh)}
 .sum-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#0A1F44;position:relative;overflow:hidden}
 body.dark .sum-hd{background:#07111f}
@@ -271,12 +272,68 @@ body.dark .sum-hd{background:#07111f}
 .sum-hd-icon svg{width:16px;height:16px;fill:#fff}
 .sum-ttl{font-size:13px;font-weight:800;color:#fff;letter-spacing:.07em;text-transform:uppercase}
 .sum-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px}
-.sum-badge{display:inline-flex;align-items:center;gap:5px;border-radius:99px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;position:relative;z-index:1;transition:all .3s}
-.sum-badge.pending{background:rgba(107,114,128,.15);border:1px solid rgba(107,114,128,.35);color:#9CA3AF}
-.sum-badge.warn{background:rgba(245,158,11,.18);border:1px solid rgba(245,158,11,.4);color:#fcd34d}
-.sum-badge.ok{background:rgba(15,195,115,.18);border:1px solid rgba(15,195,115,.4);color:#6eeabb}
-.sum-badge-dot{width:6px;height:6px;border-radius:50%;animation:pdot2 2s infinite}
-@keyframes pdot2{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Badge base */
+.sum-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  border-radius:99px;padding:5px 13px;
+  font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  position:relative;z-index:1;
+  transition:background .4s,border-color .4s,color .4s
+}
+
+/* Estado: PENDIENTE — gris neutro */
+.sum-badge.pending{
+  background:rgba(107,114,128,.15);
+  border:1px solid rgba(107,114,128,.35);
+  color:#9CA3AF
+}
+.sum-badge.pending .badge-dot{
+  background:#9CA3AF;
+  animation:blink-gray 2s ease-in-out infinite
+}
+
+/* Estado: INCOMPLETO — ámbar */
+.sum-badge.warn{
+  background:rgba(245,158,11,.16);
+  border:1px solid rgba(245,158,11,.4);
+  color:#fcd34d
+}
+.sum-badge.warn .badge-dot{
+  background:#F59E0B;
+  animation:blink-amber 1.4s ease-in-out infinite
+}
+
+/* Estado: LISTO — verde */
+.sum-badge.ok{
+  background:rgba(15,195,115,.18);
+  border:1px solid rgba(15,195,115,.4);
+  color:#6eeabb
+}
+.sum-badge.ok .badge-dot{
+  background:#0FC373;
+  animation:blink-green 2s ease-in-out infinite
+}
+
+/* Dot base */
+.badge-dot{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0
+}
+
+/* Keyframes de parpadeo por estado */
+@keyframes blink-gray{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.25;transform:scale(.8)}
+}
+@keyframes blink-amber{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.2;transform:scale(.75)}
+}
+@keyframes blink-green{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.3;transform:scale(.85)}
+}
+
 .sum-grp{padding:12px 20px}
 .sum-grp+.sum-grp{border-top:1px solid var(--gray-200)}
 .sum-grp-lbl{display:flex;align-items:center;gap:7px;margin-bottom:8px}
@@ -572,7 +629,6 @@ body.dark .modal-div{background:#1e2d50}
                  autocomplete="postal-code"/>
           <div class="cp-spin" id="cp-spin"><div class="spinner"></div></div>
         </div>
-        <!-- Badge que aparece cuando el CP es válido -->
         <div id="cp-ok-badge" style="display:none">
           <div class="cp-ok-badge">
             <span class="cp-ok-dot"></span>
@@ -584,17 +640,13 @@ body.dark .modal-div{background:#1e2d50}
 
       <!-- Bloque que se muestra tras validar el CP -->
       <div class="cp-extra-block" id="cp-extra">
-
-        <!-- Estado y Municipio en grid de 2 columnas -->
         <div class="grid-2">
           <div class="field">
             <label>Estado</label>
-            <!-- Campo visual readonly con estilo mejorado -->
             <div class="readonly-field" id="rf-estado">
               <span class="readonly-field-ico">📍</span>
               <span class="readonly-field-val" id="rf-estado-val">—</span>
             </div>
-            <!-- Input oculto para envío del formulario -->
             <input type="hidden" id="cp-estado" name="estado"/>
           </div>
           <div class="field">
@@ -606,8 +658,6 @@ body.dark .modal-div{background:#1e2d50}
             <input type="hidden" id="cp-municipio" name="municipio"/>
           </div>
         </div>
-
-        <!-- Colonia desplegable -->
         <div class="field">
           <label>Colonia<span class="req">*</span></label>
           <div class="csel">
@@ -620,7 +670,6 @@ body.dark .modal-div{background:#1e2d50}
           </div>
           <div class="helper" id="col-count-helper"></div>
         </div>
-
       </div>
       <!-- /cp-extra-block -->
 
@@ -789,9 +838,10 @@ body.dark .modal-div{background:#1e2d50}
           <div class="sum-sub">Revisa tus datos antes de enviar</div>
         </div>
       </div>
+      <!-- Badge con dot animado siempre presente -->
       <div class="sum-badge pending" id="sum-badge">
-        <span class="sum-badge-dot" style="width:6px;height:6px;border-radius:50%;background:#9CA3AF"></span>
-        Pendiente
+        <span class="badge-dot"></span>
+        <span id="sum-badge-txt">Pendiente</span>
       </div>
     </div>
     <div id="sum-body"></div>
@@ -1023,27 +1073,16 @@ function initCP(){
   var t;
 
   inp.addEventListener('input', function(){
-    // Solo dígitos
     this.value = this.value.replace(/\D/g, '');
     clearTimeout(t);
-
     var cp = this.value.trim();
-
-    // Si el CP se borra o es incompleto, ocultar bloque
-    if(cp.length !== 5){
-      hideCPExtra();
-      onChange2();
-      return;
-    }
-
-    // Esperar 700ms antes de consultar
+    if(cp.length !== 5){ hideCPExtra(); onChange2(); return; }
     t = setTimeout(function(){ fetchCP(cp); }, 700);
   });
 
   function hideCPExtra(){
     extra.classList.remove('visible');
     badge.style.display = 'none';
-    // Limpiar valores
     document.getElementById('cp-estado').value    = '';
     document.getElementById('cp-municipio').value = '';
     document.getElementById('val-colonia').value  = '';
@@ -1051,7 +1090,6 @@ function initCP(){
     document.getElementById('rf-municipio-val').textContent = '—';
     document.getElementById('rf-estado').classList.remove('filled');
     document.getElementById('rf-municipio').classList.remove('filled');
-    // Resetear selector de colonia
     var cb = document.getElementById('btn-colonia');
     cb.innerHTML = '<span class="csel-ph">Selecciona tu colonia...</span>' +
       '<svg class="csel-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke-width="2" stroke-linecap="round"/></svg>';
@@ -1068,27 +1106,18 @@ function initCP(){
       .then(function(data){
         var arr    = Array.isArray(data) ? data : [data];
         var valid  = arr.filter(function(i){ return i && !i.error && i.response; });
-
         if(!valid.length){ throw new Error('CP no encontrado'); }
-
         var r0 = valid[0].response;
-
-        // ── Estado ──────────────────────────────────────────
         var estado = (r0.estado || '').trim();
         document.getElementById('cp-estado').value = estado;
         document.getElementById('rf-estado-val').textContent = estado || '—';
         document.getElementById('rf-estado').classList.toggle('filled', !!estado);
-
-        // ── Municipio ────────────────────────────────────────
         var municipio = (r0.municipio || r0.ciudad || '').trim();
         document.getElementById('cp-municipio').value = municipio;
         document.getElementById('rf-municipio-val').textContent = municipio || '—';
         document.getElementById('rf-municipio').classList.toggle('filled', !!municipio);
-
-        // ── Colonias ─────────────────────────────────────────
         var cols = [];
         if(typeof r0.asentamiento === 'string'){
-          // COPOMEX puede devolver un solo string o un array según el CP
           cols = valid.map(function(i){ return (i.response.asentamiento || '').trim(); }).filter(Boolean);
         } else if(Array.isArray(r0.asentamiento)){
           cols = r0.asentamiento.map(function(c){ return (c||'').trim(); }).filter(Boolean);
@@ -1098,29 +1127,19 @@ function initCP(){
           }).filter(Boolean);
         }
         cols = [...new Set(cols)].sort(function(a,b){ return a.localeCompare(b,'es'); });
-
-        // Resetear selector de colonia
         document.getElementById('val-colonia').value = '';
         var cb  = document.getElementById('btn-colonia');
         var cp2 = document.getElementById('panel-btn-colonia');
         cb.innerHTML = '<span class="csel-ph">Selecciona tu colonia...</span>' +
           '<svg class="csel-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke-width="2" stroke-linecap="round"/></svg>';
         cp2.innerHTML = '';
-
-        // Construir nuevo selector con las colonias
         makeSelect('btn-colonia', 'val-colonia', cols, cols.length > 6);
-
-        // Helper con número de colonias
         var helper = document.getElementById('col-count-helper');
         helper.textContent = cols.length > 0
           ? cols.length + ' colonia' + (cols.length > 1 ? 's' : '') + ' disponible' + (cols.length > 1 ? 's' : '')
           : 'No se encontraron colonias para este C.P.';
-
-        // ── Badge de verificación ─────────────────────────────
         okTxt.textContent = 'C.P. ' + cp + ' verificado — ' + municipio + ', ' + estado;
         badge.style.display = 'block';
-
-        // ── Mostrar bloque con animación ──────────────────────
         extra.classList.add('visible');
       })
       .catch(function(err){
@@ -1345,6 +1364,63 @@ function upCompress(pct,done,rem,elap,total){
 function gv(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
 function esc(s){ var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
+/* ══════════════════════════════════════════════════════
+   LÓGICA DEL BADGE — 3 estados
+   • pending  → ningún campo obligatorio tocado aún
+   • warn     → al menos 1 campo llenado, pero faltan obligatorios
+   • ok       → todos los campos obligatorios cumplidos
+══════════════════════════════════════════════════════ */
+function getBadgeState(){
+  var complete = isComplete();
+  if(complete) return 'ok';
+
+  /* Detectar si el usuario ha empezado a llenar el formulario */
+  var started = false;
+
+  /* Campos de texto / fecha / email */
+  var textIds = ['f-nombre','f-snombre','f-ap','f-am','f-nacimiento',
+                 'f-curp','f-rfc','f-cp','f-tel','f-email',
+                 'f-version','f-vin','f-motor','f-clave','f-marca-otro'];
+  for(var i=0;i<textIds.length;i++){
+    var el = document.getElementById(textIds[i]);
+    if(el && el.value && el.value.trim()){ started = true; break; }
+  }
+
+  /* Selects ocultos */
+  if(!started){
+    var selIds = ['val-genero','val-tipo','val-marca','val-anio','val-colonia'];
+    for(var j=0;j<selIds.length;j++){
+      var sel = document.getElementById(selIds[j]);
+      if(sel && sel.value && sel.value.trim()){ started = true; break; }
+    }
+  }
+
+  /* Archivos adjuntos */
+  if(!started && S.files.length > 0) started = true;
+
+  return started ? 'warn' : 'pending';
+}
+
+function updateBadge(){
+  var badge   = document.getElementById('sum-badge');
+  var badgeTxt = document.getElementById('sum-badge-txt');
+  if(!badge || !badgeTxt) return;
+
+  var state = getBadgeState();
+
+  /* Quitar todas las clases de estado */
+  badge.classList.remove('pending','warn','ok');
+  badge.classList.add(state);
+
+  if(state === 'ok'){
+    badgeTxt.textContent = 'Listo';
+  } else if(state === 'warn'){
+    badgeTxt.textContent = 'Incompleto';
+  } else {
+    badgeTxt.textContent = 'Pendiente';
+  }
+}
+
 function buildSummary(){
   var body=document.getElementById('sum-body'); if(!body) return;
   function row(k,v,chip){
@@ -1379,11 +1455,8 @@ function buildSummary(){
     )+
     grp('📎','Documentos',row('Archivos',archStr,archStr?'files':''));
 
-  var badge=document.getElementById('sum-badge');
-  var ok=isComplete();
-  if(ok){ badge.className='sum-badge ok'; badge.innerHTML='<span class="sum-badge-dot" style="background:#0FC373"></span> Listo'; }
-  else if(S.files.length){ badge.className='sum-badge warn'; badge.innerHTML='⚠ Incompleto'; }
-  else { badge.className='sum-badge pending'; badge.innerHTML='<span class="sum-badge-dot" style="background:#9CA3AF"></span> Pendiente'; }
+  /* Actualizar badge con la nueva lógica de 3 estados */
+  updateBadge();
 }
 
 function isComplete(){
@@ -1611,7 +1684,6 @@ function resetForm(){
   document.getElementById('compress-box').classList.remove('on');
   document.getElementById('cap-wrap').classList.remove('on');
 
-  // Reset CP extra
   var extra = document.getElementById('cp-extra');
   extra.classList.remove('visible');
   document.getElementById('cp-ok-badge').style.display = 'none';
