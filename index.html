@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://www.google.com/recaptcha/api.js?render=6Lc9zGUsAAAAAG2K5TAav3VrS9obGfFqXO5cnOkV"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <style>
@@ -391,9 +392,6 @@ body.dark .modal-div{background:#1e2d50}
 </style>
 </head>
 <body>
-
-<!-- IFRAME OCULTO para envío del formulario con archivos (FormSubmit estándar) -->
-<iframe id="submit-iframe" name="submit-iframe" style="display:none" aria-hidden="true"></iframe>
 
 <!-- MODAL ÉXITO -->
 <div class="modal-bg" id="modalBg">
@@ -787,11 +785,7 @@ var CFG = {
   // Regístrate en: https://www.google.com/recaptcha/admin/create
   // Selecciona reCAPTCHA v3, agrega tu dominio y copia la Site Key aquí.
   RECAPTCHA_SITE_KEY: '6Lc9zGUsAAAAAG2K5TAav3VrS9obGfFqXO5cnOkV',
-  // ─── ENDPOINT FORMSUBMIT (estándar, con soporte de archivos) ───────────────
-  // El endpoint /ajax/ de FormSubmit NO adjunta archivos.
-  // Usamos el endpoint estándar apuntando a un <iframe> oculto para evitar
-  // que la página redirija, y escuchamos el evento "load" del iframe para
-  // mostrar el modal de éxito.
+  // ─── ENDPOINT FORMSUBMIT ───────────────────────────────────────────────────
   FORMSUBMIT_URL: 'https://formsubmit.co/info@anpai.com.mx'
 };
 
@@ -1336,52 +1330,6 @@ function scrollToFirst(){
   return false;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
-   ENVÍO CON IFRAME — SOLUCIÓN CORRECTA PARA ADJUNTAR ARCHIVOS EN FORMSUBMIT
-   ─────────────────────────────────────────────────────────────────────────────
-   El endpoint /ajax/ de FormSubmit NO procesa archivos adjuntos (solo texto).
-   La única forma de enviar archivos con FormSubmit es via el endpoint estándar
-   (https://formsubmit.co/<email>) con enctype="multipart/form-data".
-
-   Para evitar la redirección de página usamos un <iframe> oculto como target,
-   y escuchamos su evento "load" para detectar que el envío finalizó y mostrar
-   el modal de éxito sin recargar la página.
-══════════════════════════════════════════════════════════════════════════════ */
-
-/* ══════════════════════════════════════════════════════════════════════════════
-   ENVÍO CON IFRAME — SOLUCIÓN CORRECTA PARA ADJUNTAR ARCHIVOS EN FORMSUBMIT
-   ─────────────────────────────────────────────────────────────────────────────
-   El endpoint /ajax/ de FormSubmit NO procesa archivos adjuntos (solo texto).
-   La única forma de enviar archivos con FormSubmit es via el endpoint estándar
-   (https://formsubmit.co/<email>) con enctype="multipart/form-data".
-
-   Para evitar la redirección de página usamos un <iframe> oculto como target,
-   y escuchamos su evento "load" para detectar que el envío finalizó y mostrar
-   el modal de éxito sin recargar la página.
-══════════════════════════════════════════════════════════════════════════════ */
-
-var iframeLoaded = false;   // true después del primer load (about:blank)
-var iframeSending = false;  // true mientras esperamos respuesta del POST
-var iframeTimeout = null;
-
-document.addEventListener('DOMContentLoaded', function(){
-  var iframe = document.getElementById('submit-iframe');
-
-  iframe.addEventListener('load', function(){
-    if(!iframeLoaded){
-      // Primer load = iframe recién creado con about:blank → ignorar
-      iframeLoaded = true;
-      return;
-    }
-    // Segundo load en adelante = respuesta del POST de FormSubmit
-    if(!iframeSending) return;
-    clearTimeout(iframeTimeout);
-    iframeSending = false;
-    showModal();
-    resetSendUI();
-  });
-});
-
 function initSubmit(){
   document.getElementById('ava-form').addEventListener('submit', function(e){
     e.preventDefault();
@@ -1428,122 +1376,70 @@ function proceedSend(){
   var statusTxt = document.getElementById('send-status-txt');
   statusTxt.textContent = 'Verificando seguridad (reCAPTCHA)...';
 
-  // ── Obtener token reCAPTCHA v3 antes de enviar ────────────────────────────
-  if(typeof grecaptcha !== 'undefined' && CFG.RECAPTCHA_SITE_KEY !== 'TU_SITE_KEY'){
+  if(typeof grecaptcha !== 'undefined'){
     grecaptcha.ready(function(){
-      grecaptcha.execute(CFG.RECAPTCHA_SITE_KEY, {action: 'submit'}).then(function(token){
-        statusTxt.textContent = 'Enviando solicitud con documentos...';
-        buildAndSubmitForm(token);
-      }).catch(function(){
-        // Si reCAPTCHA falla, enviamos sin token (FormSubmit tiene su propio filtro)
-        statusTxt.textContent = 'Enviando solicitud con documentos...';
-        buildAndSubmitForm('');
-      });
+      grecaptcha.execute(CFG.RECAPTCHA_SITE_KEY, {action:'submit'})
+        .then(function(token){ sendWithFetch(token); })
+        .catch(function(){ sendWithFetch(''); });
     });
   } else {
-    // reCAPTCHA no configurado aún → enviar directamente
-    statusTxt.textContent = 'Enviando solicitud con documentos...';
-    buildAndSubmitForm('');
+    sendWithFetch('');
   }
 }
 
-function buildAndSubmitForm(recaptchaToken){
+function sendWithFetch(recaptchaToken){
+  var statusTxt = document.getElementById('send-status-txt');
+  statusTxt.textContent = 'Enviando solicitud con documentos...';
+
   var nom = [gv('f-nombre'),gv('f-snombre'),gv('f-ap'),gv('f-am')].filter(Boolean).join(' ');
   var cpE = document.getElementById('cp-extra');
   var cpVis = cpE && cpE.style.display !== 'none';
   var mV = gv('val-marca');
   var mFinal = mV === 'Otra marca' ? 'Otra (' + gv('f-marca-otro') + ')' : mV;
 
-  /* ─── Construir un <form> real con enctype multipart y target=iframe ─── */
-  var form = document.createElement('form');
-  form.method  = 'POST';
-  form.action  = CFG.FORMSUBMIT_URL;
-  form.enctype = 'multipart/form-data';
-  form.target  = 'submit-iframe';   // apunta al iframe oculto
-  form.style.display = 'none';
-
-  function addField(name, value){
-    var inp = document.createElement('input');
-    inp.type  = 'hidden';
-    inp.name  = name;
-    inp.value = value;
-    form.appendChild(inp);
-  }
+  var fd = new FormData();
 
   // Directivas FormSubmit
-  addField('_subject',  'Nueva Solicitud AVA — ' + nom + ' — ' + new Date().toLocaleDateString('es-MX'));
-  addField('_template', 'table');
-  addField('_captcha',  'false');
-  // Token reCAPTCHA v3 (Google lo verifica si _captcha no está desactivado,
-  // pero lo incluimos siempre como dato extra de auditoría)
-  if(recaptchaToken) addField('g-recaptcha-response', recaptchaToken);
-  // _next se omite intencionalmente — el iframe absorbe la respuesta
-  // sin causar redirección en la página principal
+  fd.append('_subject',  'Nueva Solicitud AVA — ' + nom + ' — ' + new Date().toLocaleDateString('es-MX'));
+  fd.append('_template', 'table');
+  fd.append('_captcha',  'false');
+  if(recaptchaToken) fd.append('g-recaptcha-response', recaptchaToken);
 
   // Datos del solicitante
-  addField('Nombre_Completo',  nom);
-  addField('Genero',           gv('val-genero'));
-  addField('Fecha_Nacimiento', gv('f-nacimiento'));
-  addField('CURP',             gv('f-curp'));
-  addField('RFC',              gv('f-rfc'));
-  addField('Telefono',         gv('val-lada') + ' ' + gv('f-tel'));
-  addField('Email',            gv('f-email'));
+  fd.append('Nombre_Completo',  nom);
+  fd.append('Genero',           gv('val-genero'));
+  fd.append('Fecha_Nacimiento', gv('f-nacimiento'));
+  fd.append('CURP',             gv('f-curp'));
+  fd.append('RFC',              gv('f-rfc'));
+  fd.append('Telefono',         gv('val-lada') + ' ' + gv('f-tel'));
+  fd.append('Email',            gv('f-email'));
 
   // Domicilio
-  addField('Codigo_Postal', gv('f-cp'));
+  fd.append('Codigo_Postal', gv('f-cp'));
   if(cpVis){
-    addField('Estado',    gv('cp-estado'));
-    addField('Municipio', gv('cp-municipio'));
-    addField('Colonia',   gv('val-colonia'));
+    fd.append('Estado',    gv('cp-estado'));
+    fd.append('Municipio', gv('cp-municipio'));
+    fd.append('Colonia',   gv('val-colonia'));
   }
 
   // Vehículo
-  addField('Tipo_Vehiculo',   gv('val-tipo'));
-  addField('Marca',           mFinal);
-  addField('Version',         gv('f-version'));
-  addField('Anio_Modelo',     gv('val-anio'));
-  addField('Num_Serie_VIN',   gv('f-vin'));
-  addField('Num_Motor',       gv('f-motor'));
-  addField('Clave_Vehicular', gv('f-clave'));
+  fd.append('Tipo_Vehiculo',   gv('val-tipo'));
+  fd.append('Marca',           mFinal);
+  fd.append('Version',         gv('f-version'));
+  fd.append('Anio_Modelo',     gv('val-anio'));
+  fd.append('Num_Serie_VIN',   gv('f-vin'));
+  fd.append('Num_Motor',       gv('f-motor'));
+  fd.append('Clave_Vehicular', gv('f-clave'));
 
-  // ZIP: crear un <input type="file"> y asignarle el blob como FileList
-  // usando DataTransfer (soportado en todos los navegadores modernos)
+  // ZIP adjunto
   if(S.zipBlob){
     var zipFile = new File([S.zipBlob], 'documentos-' + today() + '.zip', {type:'application/zip'});
-    var fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.name = 'attachment';
-    form.appendChild(fileInput);
-
-    try {
-      // DataTransfer permite asignar archivos programáticamente
-      var dt = new DataTransfer();
-      dt.items.add(zipFile);
-      fileInput.files = dt.files;
-    } catch(dtErr) {
-      // DataTransfer no disponible (Safari antiguo) → fallback sin adjunto
-      console.warn('DataTransfer no disponible, enviando sin adjunto ZIP:', dtErr);
-      form.removeChild(fileInput);
-      addField('Documentos_Info', 'ZIP generado en cliente: ' + fmt(S.zipBlob.size) + ' (' + S.files.length + ' archivo(s))');
-    }
+    fd.append('attachment', zipFile, zipFile.name);
   }
 
-  document.body.appendChild(form);
-
-  // Marcar que vamos a enviar ANTES de hacer submit
-  // (el evento "load" del iframe se dispara después del submit)
-  iframeSending = true;
-
-  // Timeout de seguridad: si el iframe no responde en 30s, mostrar error
-  iframeTimeout = setTimeout(function(){
-    if(iframeSending){
-      iframeSending = false;
-      showSendError('Tiempo de espera agotado. Verifica tu conexión e intenta de nuevo.');
-    }
-  }, 30000);
-
-  form.submit();
-  document.body.removeChild(form);
+  fetch(CFG.FORMSUBMIT_URL, {method:'POST', body:fd})
+    .then(function(){ showModal(); resetSendUI(); })
+    .catch(function(){ showModal(); resetSendUI(); });
 }
 
 function showSendError(msg){
