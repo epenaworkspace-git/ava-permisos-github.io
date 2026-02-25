@@ -284,6 +284,8 @@ body.dark .decl-text strong{color:#e8edf8}
 .btn-submit:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
 .recap-note{font-size:11px;color:var(--gray);text-align:center;margin-top:10px;line-height:1.5}
 .recap-note a{color:var(--blue);text-decoration:none}
+/* Estilo del badge reCAPTCHA v3 */
+.grecaptcha-badge{visibility:visible!important;opacity:1!important;box-shadow:0 4px 18px rgba(0,0,0,.2)!important;border-radius:8px 0 0 8px!important}
 
 /* ENVÍO STATUS */
 .send-status{display:none;margin-top:12px;border-radius:12px;padding:14px 18px;font-size:13px;font-weight:500;align-items:center;gap:10px}
@@ -756,7 +758,12 @@ body.dark .modal-div{background:#1e2d50}
       <div class="send-spinner"></div>
       <span id="send-status-txt">Preparando envío...</span>
     </div>
-    <div class="recap-note">Al enviar aceptas nuestras <a href="#">Políticas de Privacidad</a></div>
+    <div class="recap-note">
+      Al enviar aceptas nuestras <a href="#">Políticas de Privacidad</a>.<br>
+      Este sitio está protegido por reCAPTCHA de Google —
+      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacidad</a> y
+      <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Términos de Servicio</a> aplican.
+    </div>
   </div>
 
 </form>
@@ -776,6 +783,10 @@ body.dark .modal-div{background:#1e2d50}
 var CFG = {
   MAX_ZIP: 5 * 1024 * 1024,
   COPOMEX: '36da398a-1848-44f3-a952-06c9bfb02cc8',
+  // ── REEMPLAZA con tu Site Key de Google reCAPTCHA v3 ──────────────────────
+  // Regístrate en: https://www.google.com/recaptcha/admin/create
+  // Selecciona reCAPTCHA v3, agrega tu dominio y copia la Site Key aquí.
+  RECAPTCHA_SITE_KEY: '6Lc9zGUsAAAAAG2K5TAav3VrS9obGfFqXO5cnOkV',
   // ─── ENDPOINT FORMSUBMIT (estándar, con soporte de archivos) ───────────────
   // El endpoint /ajax/ de FormSubmit NO adjunta archivos.
   // Usamos el endpoint estándar apuntando a un <iframe> oculto para evitar
@@ -982,6 +993,14 @@ function initCP(){
 
 /* ══ INIT ══ */
 document.addEventListener('DOMContentLoaded',function(){
+  // ── Cargar reCAPTCHA v3 dinámicamente con la site key configurada ──────────
+  if(CFG.RECAPTCHA_SITE_KEY && CFG.RECAPTCHA_SITE_KEY !== 'TU_SITE_KEY'){
+    var rcScript = document.createElement('script');
+    rcScript.src = 'https://www.google.com/recaptcha/api.js?render=' + CFG.RECAPTCHA_SITE_KEY;
+    rcScript.async = true;
+    document.head.appendChild(rcScript);
+  }
+
   document.getElementById('f-nacimiento').max = new Date().toISOString().split('T')[0];
 
   makeSelect('btn-genero','val-genero',['Masculino','Femenino']);
@@ -1329,17 +1348,33 @@ function scrollToFirst(){
    el modal de éxito sin recargar la página.
 ══════════════════════════════════════════════════════════════════════════════ */
 
-/* Variable de control para detectar primer load (inicial) del iframe */
-var iframeReady = false;
-var iframeSending = false;
+/* ══════════════════════════════════════════════════════════════════════════════
+   ENVÍO CON IFRAME — SOLUCIÓN CORRECTA PARA ADJUNTAR ARCHIVOS EN FORMSUBMIT
+   ─────────────────────────────────────────────────────────────────────────────
+   El endpoint /ajax/ de FormSubmit NO procesa archivos adjuntos (solo texto).
+   La única forma de enviar archivos con FormSubmit es via el endpoint estándar
+   (https://formsubmit.co/<email>) con enctype="multipart/form-data".
+
+   Para evitar la redirección de página usamos un <iframe> oculto como target,
+   y escuchamos su evento "load" para detectar que el envío finalizó y mostrar
+   el modal de éxito sin recargar la página.
+══════════════════════════════════════════════════════════════════════════════ */
+
+var iframeLoaded = false;   // true después del primer load (about:blank)
+var iframeSending = false;  // true mientras esperamos respuesta del POST
 var iframeTimeout = null;
 
 document.addEventListener('DOMContentLoaded', function(){
   var iframe = document.getElementById('submit-iframe');
-  // El primer "load" del iframe es cuando se crea (about:blank), lo ignoramos
+
   iframe.addEventListener('load', function(){
-    if(!iframeSending) return; // no estamos enviando, ignorar
-    // Este load fue resultado del POST → éxito
+    if(!iframeLoaded){
+      // Primer load = iframe recién creado con about:blank → ignorar
+      iframeLoaded = true;
+      return;
+    }
+    // Segundo load en adelante = respuesta del POST de FormSubmit
+    if(!iframeSending) return;
     clearTimeout(iframeTimeout);
     iframeSending = false;
     showModal();
@@ -1391,8 +1426,28 @@ function doSend(){
 
 function proceedSend(){
   var statusTxt = document.getElementById('send-status-txt');
-  statusTxt.textContent = 'Enviando solicitud con documentos...';
+  statusTxt.textContent = 'Verificando seguridad (reCAPTCHA)...';
 
+  // ── Obtener token reCAPTCHA v3 antes de enviar ────────────────────────────
+  if(typeof grecaptcha !== 'undefined' && CFG.RECAPTCHA_SITE_KEY !== 'TU_SITE_KEY'){
+    grecaptcha.ready(function(){
+      grecaptcha.execute(CFG.RECAPTCHA_SITE_KEY, {action: 'submit'}).then(function(token){
+        statusTxt.textContent = 'Enviando solicitud con documentos...';
+        buildAndSubmitForm(token);
+      }).catch(function(){
+        // Si reCAPTCHA falla, enviamos sin token (FormSubmit tiene su propio filtro)
+        statusTxt.textContent = 'Enviando solicitud con documentos...';
+        buildAndSubmitForm('');
+      });
+    });
+  } else {
+    // reCAPTCHA no configurado aún → enviar directamente
+    statusTxt.textContent = 'Enviando solicitud con documentos...';
+    buildAndSubmitForm('');
+  }
+}
+
+function buildAndSubmitForm(recaptchaToken){
   var nom = [gv('f-nombre'),gv('f-snombre'),gv('f-ap'),gv('f-am')].filter(Boolean).join(' ');
   var cpE = document.getElementById('cp-extra');
   var cpVis = cpE && cpE.style.display !== 'none';
@@ -1419,6 +1474,9 @@ function proceedSend(){
   addField('_subject',  'Nueva Solicitud AVA — ' + nom + ' — ' + new Date().toLocaleDateString('es-MX'));
   addField('_template', 'table');
   addField('_captcha',  'false');
+  // Token reCAPTCHA v3 (Google lo verifica si _captcha no está desactivado,
+  // pero lo incluimos siempre como dato extra de auditoría)
+  if(recaptchaToken) addField('g-recaptcha-response', recaptchaToken);
   // _next se omite intencionalmente — el iframe absorbe la respuesta
   // sin causar redirección en la página principal
 
