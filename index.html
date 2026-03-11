@@ -900,7 +900,7 @@ body.dark .modal-div{background:#1e2d50}
 
 var CFG = {
   MAX_ZIP: 5 * 1024 * 1024,
-  COPOMEX: '36da398a-1848-44f3-a952-06c9bfb02cc8',
+  CP_API: 'https://mexico-api.devaleff.com/api/codigo-postal/',
   RECAPTCHA_SITE_KEY: '6Lc9zGUsAAAAAG2K5TAav3VrS9obGfFqXO5cnOkV',
   FORMSUBMIT_URL: 'https://formsubmit.co/info@anpai.com.mx'
 };
@@ -1061,14 +1061,14 @@ function initLada(){
 }
 
 /* ══════════════════════════════════
-   CÓDIGO POSTAL — COPOMEX
+   CÓDIGO POSTAL — mexico-api.devaleff.com
 ══════════════════════════════════ */
 function initCP(){
-  var inp    = document.getElementById('f-cp');
-  var spin   = document.getElementById('cp-spin');
-  var extra  = document.getElementById('cp-extra');
-  var badge  = document.getElementById('cp-ok-badge');
-  var okTxt  = document.getElementById('cp-ok-txt');
+  var inp   = document.getElementById('f-cp');
+  var spin  = document.getElementById('cp-spin');
+  var extra = document.getElementById('cp-extra');
+  var badge = document.getElementById('cp-ok-badge');
+  var okTxt = document.getElementById('cp-ok-txt');
   var t;
 
   inp.addEventListener('input', function(){
@@ -1076,7 +1076,7 @@ function initCP(){
     clearTimeout(t);
     var cp = this.value.trim();
     if(cp.length !== 5){ hideCPExtra(); onChange2(); return; }
-    t = setTimeout(function(){ fetchCP(cp); }, 700);
+    t = setTimeout(function(){ fetchCP(cp); }, 400);
   });
 
   function hideCPExtra(){
@@ -1085,7 +1085,7 @@ function initCP(){
     document.getElementById('cp-estado').value    = '';
     document.getElementById('cp-municipio').value = '';
     document.getElementById('val-colonia').value  = '';
-    document.getElementById('rf-estado-val').textContent   = '—';
+    document.getElementById('rf-estado-val').textContent    = '—';
     document.getElementById('rf-municipio-val').textContent = '—';
     document.getElementById('rf-estado').classList.remove('filled');
     document.getElementById('rf-municipio').classList.remove('filled');
@@ -1100,49 +1100,71 @@ function initCP(){
     spin.style.display = 'flex';
     hideCPExtra();
 
-    fetch('https://api.copomex.com/query/info_cp/' + cp + '?token=' + CFG.COPOMEX)
-      .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(function(data){
-        var arr    = Array.isArray(data) ? data : [data];
-        var valid  = arr.filter(function(i){ return i && !i.error && i.response; });
-        if(!valid.length){ throw new Error('CP no encontrado'); }
-        var r0 = valid[0].response;
-        var estado = (r0.estado || '').trim();
+    fetch(CFG.CP_API + encodeURIComponent(cp))
+      .then(function(res){
+        if(res.status === 404) throw { handled: true, msg: 'Código postal no encontrado.' };
+        if(!res.ok) throw { handled: true, msg: 'Error del servidor. Intenta de nuevo.' };
+        return res.json();
+      })
+      .then(function(json){
+        var rows = json.data;
+        if(!Array.isArray(rows) || rows.length === 0){
+          throw { handled: true, msg: 'Código postal no encontrado.' };
+        }
+
+        /* Estado y Municipio — CRÍTICO: D_mnpio con D mayúscula */
+        var estado    = (rows[0].d_estado || '').trim();
+        var municipio = (rows[0].D_mnpio  || rows[0].d_ciudad || '').trim();
+
         document.getElementById('cp-estado').value = estado;
         document.getElementById('rf-estado-val').textContent = estado || '—';
         document.getElementById('rf-estado').classList.toggle('filled', !!estado);
-        var municipio = (r0.municipio || r0.ciudad || '').trim();
+
         document.getElementById('cp-municipio').value = municipio;
         document.getElementById('rf-municipio-val').textContent = municipio || '—';
         document.getElementById('rf-municipio').classList.toggle('filled', !!municipio);
-        var cols = [];
-        if(typeof r0.asentamiento === 'string'){
-          cols = valid.map(function(i){ return (i.response.asentamiento || '').trim(); }).filter(Boolean);
-        } else if(Array.isArray(r0.asentamiento)){
-          cols = r0.asentamiento.map(function(c){ return (c||'').trim(); }).filter(Boolean);
-        } else {
-          cols = valid.map(function(i){
-            return (i.response.asentamiento || i.response.colonia || '').trim();
-          }).filter(Boolean);
-        }
-        cols = [...new Set(cols)].sort(function(a,b){ return a.localeCompare(b,'es'); });
+
+        /* Colonias únicas y ordenadas */
+        var seen = {}, cols = [];
+        rows.forEach(function(r){
+          var c = (r.d_asenta || '').trim();
+          if(c && !seen[c]){ seen[c] = true; cols.push(c); }
+        });
+        cols.sort(function(a, b){ return a.localeCompare(b, 'es'); });
+
+        /* Resetear selector de colonias */
         document.getElementById('val-colonia').value = '';
         var cb  = document.getElementById('btn-colonia');
         var cp2 = document.getElementById('panel-btn-colonia');
         cb.innerHTML = '<span class="csel-ph">Selecciona tu colonia...</span>' +
           '<svg class="csel-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke-width="2" stroke-linecap="round"/></svg>';
         cp2.innerHTML = '';
-        makeSelect('btn-colonia', 'val-colonia', cols, cols.length > 6);
+
+        /* Mostrar selector siempre que haya al menos 1 colonia */
+        if(cols.length >= 1){
+          makeSelect('btn-colonia', 'val-colonia', cols, cols.length > 6);
+          /* Si solo hay una colonia, preseleccionarla */
+          if(cols.length === 1){
+            document.getElementById('val-colonia').value = cols[0];
+            setSelect(cb, document.getElementById('val-colonia'), cols[0]);
+          }
+        }
+
         var helper = document.getElementById('col-count-helper');
         helper.textContent = cols.length > 0
           ? cols.length + ' colonia' + (cols.length > 1 ? 's' : '') + ' disponible' + (cols.length > 1 ? 's' : '')
           : 'No se encontraron colonias para este C.P.';
+
         okTxt.textContent = 'C.P. ' + cp + ' verificado — ' + municipio + ', ' + estado;
         badge.style.display = 'block';
         extra.classList.add('visible');
       })
       .catch(function(err){
-        console.warn('COPOMEX error:', err);
+        var msg = (err && err.handled)
+          ? err.msg
+          : (navigator.onLine ? 'No se pudo consultar el C.P. Intenta de nuevo.'
+                              : 'Sin conexión a internet.');
+        console.warn('CP API error:', msg);
         hideCPExtra();
         badge.style.display = 'none';
       })
@@ -1363,20 +1385,12 @@ function upCompress(pct,done,rem,elap,total){
 function gv(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
 function esc(s){ var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
-/* ══════════════════════════════════════════════════════
-   LÓGICA DEL BADGE — 3 estados
-   • pending  → ningún campo obligatorio tocado aún
-   • warn     → al menos 1 campo llenado, pero faltan obligatorios
-   • ok       → todos los campos obligatorios cumplidos
-══════════════════════════════════════════════════════ */
 function getBadgeState(){
   var complete = isComplete();
   if(complete) return 'ok';
 
-  /* Detectar si el usuario ha empezado a llenar el formulario */
   var started = false;
 
-  /* Campos de texto / fecha / email */
   var textIds = ['f-nombre','f-snombre','f-ap','f-am','f-nacimiento',
                  'f-curp','f-rfc','f-cp','f-tel','f-email',
                  'f-version','f-vin','f-motor','f-clave','f-marca-otro'];
@@ -1385,7 +1399,6 @@ function getBadgeState(){
     if(el && el.value && el.value.trim()){ started = true; break; }
   }
 
-  /* Selects ocultos */
   if(!started){
     var selIds = ['val-genero','val-tipo','val-marca','val-anio','val-colonia'];
     for(var j=0;j<selIds.length;j++){
@@ -1394,7 +1407,6 @@ function getBadgeState(){
     }
   }
 
-  /* Archivos adjuntos */
   if(!started && S.files.length > 0) started = true;
 
   return started ? 'warn' : 'pending';
@@ -1407,7 +1419,6 @@ function updateBadge(){
 
   var state = getBadgeState();
 
-  /* Quitar todas las clases de estado */
   badge.classList.remove('pending','warn','ok');
   badge.classList.add(state);
 
@@ -1454,7 +1465,6 @@ function buildSummary(){
     )+
     grp('📎','Documentos',row('Archivos',archStr,archStr?'files':''));
 
-  /* Actualizar badge con la nueva lógica de 3 estados */
   updateBadge();
 }
 
@@ -1678,6 +1688,7 @@ document.getElementById('modalBg').addEventListener('click',function(e){
 function resetForm(){
   document.getElementById('ava-form').reset();
   S={files:[],zipBlob:null,compressing:false,_runId:0,startTime:null};
+  clearTimeout(compTimer);
   document.getElementById('file-list').innerHTML='';
   document.getElementById('rt-stats').style.display='none';
   document.getElementById('compress-box').classList.remove('on');
