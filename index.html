@@ -89,18 +89,16 @@ input[readonly]{background:var(--gray-100)!important;color:var(--mid)!important;
 .csel-arrow{flex-shrink:0;transition:transform .2s;stroke:var(--gray)}
 .csel-btn.open .csel-arrow{transform:rotate(180deg)}
 
-/* Panel — posicionado fijo desde JS, adjunto al body */
+/* Panel — position:fixed para escapar overflow:hidden de .card */
 .csel-panel{
   position:fixed;
-  z-index:9500;
+  z-index:9100;width:auto;min-width:220px;
   background:var(--card-bg);border:1.5px solid var(--border);border-radius:var(--r);
   box-shadow:0 10px 40px rgba(10,31,68,.22);
   display:none;flex-direction:column;overflow:hidden;
   max-height:260px;
-  min-width:220px;
 }
 .csel-panel.open{display:flex}
-/* .up ya no cambia top/bottom — el JS calcula coordenadas directamente */
 
 .csel-srchwrap{padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--card-bg)}
 .csel-srchwrap input{
@@ -125,7 +123,7 @@ body.dark .csel-opt:hover{background:rgba(77,138,255,.1)}
 .csel-opt.sel{color:var(--blue);font-weight:600;background:rgba(22,93,255,.05)}
 
 /* Velo */
-.csel-veil{display:none;position:fixed;inset:0;z-index:9499}
+.csel-veil{display:none;position:fixed;inset:0;z-index:9099}
 .csel-veil.on{display:block}
 
 /* PHONE ROW */
@@ -518,7 +516,7 @@ body.dark .modal-div{background:#1e2d50}
           <strong>Contacto directo</strong>
           <div class="contact-list">
             <div class="contact-item">📞 <a href="tel:+527471234567">+52 (747) 123-4567</a></div>
-            <div class="contact-item">✉️ <a href="/cdn-cgi/l/email-protection#751c1b131a35141b05141c5b161a185b180d"><span class="__cf_email__" data-cfemail="1d74737b725d7c736d7c74337e7270337065">[email&#160;protected]</span></a></div>
+            <div class="contact-item">✉️ <a href="mailto:info@anpai.com.mx">info@anpai.com.mx</a></div>
             <div class="contact-item">🌐 <a href="https://www.anpai.com.mx" target="_blank">www.anpai.com.mx</a></div>
           </div>
         </div>
@@ -896,7 +894,7 @@ body.dark .modal-div{background:#1e2d50}
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 'use strict';
 
 var CFG = {
@@ -945,44 +943,43 @@ veil.onclick = closeAll;
 function closeAll(){
   if(currentPanel){
     currentPanel.classList.remove('open');
-    /* Devolver el panel a su contenedor original si fue movido al body */
-    if(currentPanel._origParent && currentPanel.parentNode === document.body){
-      currentPanel._origParent.appendChild(currentPanel);
-    }
     currentPanel = null;
   }
+  _activeBtn = null;
   veil.classList.remove('on');
   document.querySelectorAll('.csel-btn.open, .lada-btn.open').forEach(function(b){ b.classList.remove('open'); });
-  window.removeEventListener('scroll', _reposPanel, true);
-  window.removeEventListener('resize', _reposPanel);
+  window.removeEventListener('scroll', _onScrollResize, true);
+  window.removeEventListener('resize', _onScrollResize);
 }
 
-/* Referencia al botón activo para reposicionar en scroll/resize */
+/* Reposicionar el panel abierto cuando el usuario hace scroll o resize */
 var _activeBtn = null;
-function _reposPanel(){
-  if(!currentPanel || !_activeBtn) return;
-  _positionPanel(currentPanel, _activeBtn);
-}
+function _onScrollResize(){ if(currentPanel && _activeBtn) _placePanel(currentPanel, _activeBtn); }
 
-function _positionPanel(panel, btn){
+function _placePanel(panel, btn){
   var r = btn.getBoundingClientRect();
-  var panelH = Math.min(260, 300); /* max-height del panel */
-  var spaceBelow = window.innerHeight - r.bottom - 8;
-  var spaceAbove = r.top - 8;
+  var GAP = 6;
+  var PANEL_MAX = 260;
 
-  panel.style.width  = r.width + 'px';
-  panel.style.left   = r.left + window.scrollX + 'px';
+  /* Ancho igual al botón */
+  panel.style.width = r.width + 'px';
+  panel.style.left  = r.left + 'px';
 
-  if(spaceBelow >= Math.min(panelH, 120) || spaceBelow >= spaceAbove){
+  var spaceBelow = window.innerHeight - r.bottom - GAP;
+  var spaceAbove = r.top - GAP;
+
+  if(spaceBelow >= Math.min(PANEL_MAX, 120) || spaceBelow >= spaceAbove){
     /* Abrir hacia abajo */
-    panel.style.top    = (r.bottom + window.scrollY + 6) + 'px';
+    var h = Math.min(PANEL_MAX, Math.max(spaceBelow, 80));
+    panel.style.maxHeight = h + 'px';
+    panel.style.top    = (r.bottom + GAP) + 'px';
     panel.style.bottom = 'auto';
-    panel.style.maxHeight = Math.max(spaceBelow - 8, 120) + 'px';
   } else {
     /* Abrir hacia arriba */
+    var h = Math.min(PANEL_MAX, Math.max(spaceAbove, 80));
+    panel.style.maxHeight = h + 'px';
     panel.style.bottom = 'auto';
-    panel.style.maxHeight = Math.max(spaceAbove - 8, 120) + 'px';
-    panel.style.top = (r.top + window.scrollY - Math.min(parseFloat(panel.style.maxHeight), panelH) - 6) + 'px';
+    panel.style.top    = (r.top - h - GAP) + 'px';
   }
 }
 
@@ -990,23 +987,15 @@ function openPanel(panel, btn){
   if(currentPanel && currentPanel !== panel){ closeAll(); }
   if(panel.classList.contains('open')){ closeAll(); return; }
 
-  /* Mover panel al body para escapar de cualquier overflow:hidden */
-  if(panel.parentNode !== document.body){
-    panel._origParent = panel.parentNode;
-    document.body.appendChild(panel);
-  }
-
   _activeBtn = btn;
-  _positionPanel(panel, btn);
-
+  _placePanel(panel, btn);
   panel.classList.add('open');
   btn.classList.add('open');
   veil.classList.add('on');
   currentPanel = panel;
 
-  /* Reposicionar si el usuario hace scroll o cambia el tamaño */
-  window.addEventListener('scroll', _reposPanel, true);
-  window.addEventListener('resize', _reposPanel);
+  window.addEventListener('scroll', _onScrollResize, true);
+  window.addEventListener('resize', _onScrollResize);
 
   var si = panel.querySelector('.csel-srchwrap input');
   if(si) setTimeout(function(){ si.focus(); }, 60);
@@ -1026,7 +1015,11 @@ function makeSelect(btnId, hiddenId, items, searchable, onChange){
   }
   var scroll = document.createElement('div'); scroll.className = 'csel-scroll';
   panel.appendChild(scroll);
-  panel.addEventListener('click', function(e){ e.stopPropagation(); });
+  /* Evitar duplicar el listener si makeSelect es llamado más de una vez sobre el mismo panel */
+  if(!panel._clickGuard){
+    panel._clickGuard = true;
+    panel.addEventListener('click', function(e){ e.stopPropagation(); });
+  }
 
   var isGrouped = Array.isArray(items) && items.length > 0 && items[0] && items[0].group;
 
@@ -1117,13 +1110,6 @@ function initCP(){
   });
 
   function hideCPExtra(){
-    /* Cerrar y devolver el panel de colonia si está abierto en el body */
-    var cp2 = document.getElementById('panel-btn-colonia');
-    if(cp2 && currentPanel === cp2){ closeAll(); }
-    if(cp2 && cp2._origParent && cp2.parentNode === document.body){
-      cp2._origParent.appendChild(cp2);
-    }
-
     extra.classList.remove('visible');
     badge.style.display = 'none';
     document.getElementById('cp-estado').value    = '';
@@ -1136,7 +1122,7 @@ function initCP(){
     var cb = document.getElementById('btn-colonia');
     cb.innerHTML = '<span class="csel-ph">Selecciona tu colonia...</span>' +
       '<svg class="csel-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke-width="2" stroke-linecap="round"/></svg>';
-    if(cp2){ cp2.innerHTML = ''; delete cp2._origParent; }
+    var cp2 = document.getElementById('panel-btn-colonia'); cp2.innerHTML = ''; cp2._clickGuard = false;
     document.getElementById('col-count-helper').textContent = '';
   }
 
@@ -1730,9 +1716,6 @@ document.getElementById('modalBg').addEventListener('click',function(e){
 
 /* ══ RESET ══ */
 function resetForm(){
-  /* Primero cerrar cualquier panel abierto para devolverlo a su origen */
-  closeAll();
-
   document.getElementById('ava-form').reset();
   S={files:[],zipBlob:null,compressing:false,_runId:0,startTime:null};
   clearTimeout(compTimer);
@@ -1751,10 +1734,6 @@ function resetForm(){
   document.getElementById('rf-estado').classList.remove('filled');
   document.getElementById('rf-municipio').classList.remove('filled');
   document.getElementById('col-count-helper').textContent = '';
-
-  /* Limpiar panel de colonia y borrar referencia _origParent */
-  var cp2 = document.getElementById('panel-btn-colonia');
-  if(cp2){ cp2.innerHTML = ''; delete cp2._origParent; }
 
   document.getElementById('marca-otro-wrap').style.display='none';
   document.getElementById('f-marca-otro').value='';
@@ -1780,4 +1759,8 @@ function resetForm(){
 /* ══ UTILIDADES ══ */
 function fmt(b){ if(b<1024)return b+' B'; if(b<1048576)return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(2)+' MB'; }
 function fmtS(s){ return s<60?Math.round(s)+'s':Math.floor(s/60)+'m '+Math.round(s%60)+'s'; }
-function fileIco(n){ var e=n.split('.').pop().toLowerCase(); return ['jpg','jpeg','png','gif'
+function fileIco(n){ var e=n.split('.').pop().toLowerCase(); return ['jpg','jpeg','png','gif','webp'].indexOf(e)>=0?'🖼️':e==='pdf'?'📄':'📎'; }
+function today(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0'); }
+</script>
+</body>
+</html>
